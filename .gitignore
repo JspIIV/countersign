@@ -1,0 +1,9 @@
+node_modules/
+results/*.log
+results/v1/*.log
+.env*
+.vercel/
+.claude/
+*.mp4
+results/flow_state.json
+results/v1/flow_state.json

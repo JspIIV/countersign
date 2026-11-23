@@ -1,0 +1,300 @@
+{
+  "reviewer": "0x44D4d5573814F0E02f4E3e3B16B3fb3a43AB4B83",
+  "node": "0x0b57877ec84D96b672CD47D8Ea4424283fDB9F6C",
+  "channels": {
+    "E": "0x011397121d7f63ebc128a16b071bec9461f29157f027666bd19a1469e291229b",
+    "F": "0x015ba7da409292f05b8219bb027fa1b4d0db91dc70422d3f33e0a6b1aa7b514d"
+  },
+  "cases": {
+    "E_10": {
+      "caseId": 4,
+      "nodeRefused": true,
+      "state": {
+        "version": "2",
+        "intent": 1,
+        "metadata": "0x459cd3840f5c4d7c7e308142feec6b4ac9ffb3f0b64dcaf066e7e5ba66cd2d35",
+        "homeLedger": {
+          "chainId": "4221",
+          "token": "0x7D680257bD85CD110bAc03fdD4Da657ba88bf10a",
+          "decimals": 6,
+          "userAllocation": "0",
+          "userNetFlow": "0",
+          "nodeAllocation": "0",
+          "nodeNetFlow": "0"
+        },
+        "userSig": "0x002f9410fff9e4ee3358ed2db9f099e19d6a9aa95cad87c9525d9880125875dd2d2b3135447ebf50bb3412632a4e982ac28ff7c835b707d3a43627e413dc8d39fd1b"
+      },
+      "round": "0x6f6f51148a5a80b519f8e2b8be89063ccda99898bf6901baec37f2a8185d5303",
+      "verdict": "SIGNED",
+      "ruling": {
+        "case": 4,
+        "verdict": "SIGNED",
+        "answer": 1,
+        "answer_text": "Yes",
+        "why": "The sources show 'Yes', for which the terms give the user 10, exactly what the settlement gives.",
+        "judges": "The source gives Mount Everestâ€™s height as 8,848.86 metres, which is above 8,800 metres.",
+        "sources": [
+          "https://en.wikipedia.org/api/rest_v1/page/summary/Mount_Everest"
+        ],
+        "question": "Is the height of Mount Everest given by the source above 8,800 metres?",
+        "channel": "0x011397121d7f63ebc128a16b071bec9461f29157f027666bd19a1469e291229b",
+        "proposer": "0x44d4d5573814f0e02f4e3e3b16b3fb3a43ab4b83",
+        "respondent": "0x0b57877ec84d96b672cd47d8ea4424283fdb9f6c",
+        "proposer_is_user": true,
+        "intent": "CLOSE",
+        "user_share_before": "10",
+        "user_share_proposed": "10",
+        "channel_total": "10",
+        "ruled_at": 1795443399,
+        "by": "0x44d4d5573814f0e02f4e3e3b16b3fb3a43ab4b83",
+        "terms_sha256": "bd3815bc3a55908bc594d4d68a7df6afc2f53dcec9b91694a790735dbdf1cb54",
+        "reason": "a0e2ed546c1c46b31445516387db939660c7d3879e73d1fc91d0c12ad760e8f8"
+      },
+      "closed": true,
+      "received": "10000000"
+    },
+    "F_10": {
+      "caseId": 5,
+      "nodeRefused": true,
+      "state": {
+        "version": "2",
+        "intent": 1,
+        "metadata": "0x43c173ab8ed7046be378d2904a6f20216f4388f1511cd4429c01b98eb0eb0ea9",
+        "homeLedger": {
+          "chainId": "4221",
+          "token": "0x7D680257bD85CD110bAc03fdD4Da657ba88bf10a",
+          "decimals": 6,
+          "userAllocation": "0",
+          "userNetFlow": "0",
+          "nodeAllocation": "0",
+          "nodeNetFlow": "0"
+        },
+        "userSig": "0x00e07feb2d5cdb719172fbafa9a7f3bbb1a1098ae1dcf6021e0d3dfd7a8a727bcd232bd1b301d9f2c9574c2891d27e139b1572b9b46615f54095deadbd0d095e101b"
+      },
+      "round": "0x55d9b83246d207e367b586a3c7a5a85bf3d8ca1dbf90a6c84c825ce7da308dd1",
+      "verdict": "REFUSED",
+      "ruling": {
+        "case": 5,
+        "verdict": "REFUSED",
+        "answer": 2,
+        "answer_text": "No",
+        "why": "The sources show 'No', for which the terms give the user 2, but the settlement gives 10.",
+        "judges": "The Wikipedia source gives Mount Everest's height as 8,848.86 m, which is not below 8,000 metres.",
+        "sources": [
+          "https://en.wikipedia.org/api/rest_v1/page/summary/Mount_Everest"
+        ],
+        "question": "Is the height of Mount Everest given by the source below 8,000 metres?",
+        "channel": "0x015ba7da409292f05b8219bb027fa1b4d0db91dc70422d3f33e0a6b1aa7b514d",
+        "proposer": "0x44d4d5573814f0e02f4e3e3b16b3fb3a43ab4b83",
+        "respondent": "0x0b57877ec84d96b672cd47d8ea4424283fdb9f6c",
+        "proposer_is_user": true,
+        "intent": "CLOSE",
+        "user_share_before": "10",
+        "user_share_proposed": "10",
+        "channel_total": "10",
+        "ruled_at": 1795443522,
+        "by": "0x44d4d5573814f0e02f4e3e3b16b3fb3a43ab4b83",
+        "terms_sha256": "6e01e75828a243285fba775b15776857ac5fa54052714aaa13b553371ff2ee3a",
+        "reason": "3fac7f75aa9c0979b0dc8dbe41244ceca63d7f5432a32fa526a0a8ac55aa1c9a"
+      }
+    },
+    "F_2": {
+      "caseId": 6,
+      "nodeRefused": true,
+      "state": {
+        "version": "2",
+        "intent": 1,
+        "metadata": "0x43c173ab8ed7046be378d2904a6f20216f4388f1511cd4429c01b98eb0eb0ea9",
+        "homeLedger": {
+          "chainId": "4221",
+          "token": "0x7D680257bD85CD110bAc03fdD4Da657ba88bf10a",
+          "decimals": 6,
+          "userAllocation": "0",
+          "userNetFlow": "8000000",
+          "nodeAllocation": "0",
+          "nodeNetFlow": "-8000000"
+        },
+        "userSig": "0x007b0dabe6240d09a0a7afc3ebb53f85dce98b1693a16ce701d4e2efbaaf9957e50209c9e7ebd789479dfb4e8917642b3b92ea420d9ea559c71f1c01e58dd9aa6c1b"
+      },
+      "round": "0x7992e4e504a818cb56b8e475b70f016d260ed69c082635347b8c0e972c2d9c89",
+      "verdict": "SIGNED",
+      "ruling": {
+        "case": 6,
+        "verdict": "SIGNED",
+        "answer": 2,
+        "answer_text": "No",
+        "why": "The sources show 'No', for which the terms give the user 2, exactly what the settlement gives.",
+        "judges": "The source states the height of Mount Everest is 8,848.86 m, which is not 8,000 metres.",
+        "sources": [
+          "https://en.wikipedia.org/api/rest_v1/page/summary/Mount_Everest"
+        ],
+        "question": "Is the height of Mount Everest given by the source below 8,000 metres?",
+        "channel": "0x015ba7da409292f05b8219bb027fa1b4d0db91dc70422d3f33e0a6b1aa7b514d",
+        "proposer": "0x44d4d5573814f0e02f4e3e3b16b3fb3a43ab4b83",
+        "respondent": "0x0b57877ec84d96b672cd47d8ea4424283fdb9f6c",
+        "proposer_is_user": true,
+        "intent": "CLOSE",
+        "user_share_before": "10",
+        "user_share_proposed": "2",
+        "channel_total": "10",
+        "ruled_at": 1795443650,
+        "by": "0x44d4d5573814f0e02f4e3e3b16b3fb3a43ab4b83",
+        "terms_sha256": "6e01e75828a243285fba775b15776857ac5fa54052714aaa13b553371ff2ee3a",
+        "reason": "7e336b31703a22fe6a82b16b052b5d2a09b5407ae4d44c6bbc0a117a9570af98"
+      },
+      "closed": true,
+      "received": "2000000"
+    }
+  },
+  "checks": [
+    {
+      "label": "a new wallet gets 10 tUSD from the node",
+      "ok": true,
+      "detail": "0x22fbfabec2f04668647c8ba876b679657081dd7e1b53cc9bceec70426a0e6941"
+    },
+    {
+      "label": "a wallet that already holds 10 gets nothing more",
+      "ok": true,
+      "detail": "this wallet already holds 10 tUSD or more"
+    },
+    {
+      "label": "the node refuses to sign the settlement it owes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "the court SIGNS the claim of 10: the source shows Yes",
+      "ok": true,
+      "detail": "The sources show 'Yes', for which the terms give the user 10, exactly what the settlement gives."
+    },
+    {
+      "label": "the channel is closed and the wallet got its 10 tUSD back, with no node signature",
+      "ok": true,
+      "detail": "received 10.0"
+    },
+    {
+      "label": "the court REFUSES a claim of 10: the source shows No",
+      "ok": true,
+      "detail": "The sources show 'No', for which the terms give the user 2, but the settlement gives 10."
+    },
+    {
+      "label": "Yellow's hub rejects the close with the refused case as the node's signature",
+      "ok": true,
+      "detail": "IncorrectSignature"
+    },
+    {
+      "label": "the court SIGNS the honest claim of 2",
+      "ok": true,
+      "detail": "The sources show 'No', for which the terms give the user 2, exactly what the settlement gives."
+    },
+    {
+      "label": "the wallet got exactly 2 back; the node keeps the other 8 the terms give it",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a channel that does not approve Countersign is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a first state with another deposit is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a bet the node does not offer is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a state the user did not sign is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a channel that already exists is refused",
+      "ok": true,
+      "detail": "this channel already exists"
+    }
+  ],
+  "evm": [
+    {
+      "label": "pchg gives the new wallet 1 GEN for gas",
+      "hash": "0x09c1cdbe23af2f9eacdc601ee1b27febfe2183eef1525bc34db514ba1b2b0aa5"
+    },
+    {
+      "label": "pchg funds the node's faucet with 300 tUSD",
+      "hash": "0xe49907564e9d2a40f1ea98a0275849bfbf8d1c913a8cabef0073088f8dddc388"
+    },
+    {
+      "label": "the wallet approves the hub for tUSD",
+      "hash": "0x3fb08512553da2c5b166a06e0a92d271fa58f79f86d78229d7de503010643276"
+    },
+    {
+      "label": "E: the wallet opens a channel on Yellow's hub, 10 tUSD, bet \"Everest is above 8,800 m\", the node's opening signature from the service",
+      "hash": "0x88c5b33b2312ac22fef88b86eb0118a8b939620b04c0ab00ee208c580dfe8ca3"
+    },
+    {
+      "label": "E: the wallet files its CLOSE for 10 tUSD on Countersign",
+      "hash": "0x3d803de0ed10044e4b6112bf74d0c0a28d9dffbaab5ecbd448f07a8e6e99b139"
+    },
+    {
+      "label": "E: the wallet closes the channel alone, Countersign standing in for the silent node",
+      "hash": "0x01729ccd2074675bf3b1895f28615e644ce37ed2183991496102da29bdfd20e7"
+    },
+    {
+      "label": "F: the wallet opens a channel on Yellow's hub, 10 tUSD, bet \"Everest is below 8,000 m\", the node's opening signature from the service",
+      "hash": "0x541d9a27a19cf2429a54692c2c3183283f985b6bd855c78fa39a63f008232245"
+    },
+    {
+      "label": "F: the wallet files its CLOSE for 10 tUSD on Countersign",
+      "hash": "0x47f2cec99d30c804047ecc8cd3cdcf639390cebfd286013443ff401f3ed00e7e"
+    },
+    {
+      "label": "F: the wallet files its CLOSE for 2 tUSD on Countersign",
+      "hash": "0xa6b8a5cc73d74608544817eb3ef61646ef7068eccf039d93f5df98be6897206b"
+    },
+    {
+      "label": "F: the wallet closes with its honest 2 tUSD, Countersign standing in for the node",
+      "hash": "0x3855a396e31229142091a7d48ef92d026c9ab542cd7ec316d6244101e0905c89"
+    }
+  ],
+  "genlayer": [
+    {
+      "label": "rule E_10 (case 4)",
+      "hash": "0x6f6f51148a5a80b519f8e2b8be89063ccda99898bf6901baec37f2a8185d5303"
+    },
+    {
+      "label": "rule F_10 (case 5)",
+      "hash": "0x55d9b83246d207e367b586a3c7a5a85bf3d8ca1dbf90a6c84c825ce7da308dd1"
+    },
+    {
+      "label": "rule F_2 (case 6)",
+      "hash": "0x7992e4e504a818cb56b8e475b70f016d260ed69c082635347b8c0e972c2d9c89"
+    }
+  ],
+  "transcript": [
+    "Countersign phase 3: the reviewer's path, a new wallet, the real node service",
+    "  reviewer 0x44D4d5573814F0E02f4E3e3B16B3fb3a43AB4B83 | node 0x0b57877ec84D96b672CD47D8Ea4424283fDB9F6C | hub 0x6999925Cc2F8a17A0D28c43840eE03044412EE87 | Countersign 0x292352BC86661249b1851E4A25BFfeE25bC5D8C2 | court 0x06DcE79576EC3E225d2E73c910a9e43Fa3645990",
+    "\nthe faucet",
+    "  PASS  a new wallet gets 10 tUSD from the node | 0x22fbfabec2f04668647c8ba876b679657081dd7e1b53cc9bceec70426a0e6941",
+    "  PASS  a wallet that already holds 10 gets nothing more | this wallet already holds 10 tUSD or more",
+    "\nchannel E: a true bet, claimed honestly",
+    "  PASS  the node refuses to sign the settlement it owes",
+    "  PASS  the court SIGNS the claim of 10: the source shows Yes | The sources show 'Yes', for which the terms give the user 10, exactly what the settlement gives.",
+    "  PASS  the channel is closed and the wallet got its 10 tUSD back, with no node signature | received 10.0",
+    "\nchannel F: a false bet, claimed greedily, then honestly",
+    "  PASS  the court REFUSES a claim of 10: the source shows No | The sources show 'No', for which the terms give the user 2, but the settlement gives 10.",
+    "  PASS  Yellow's hub rejects the close with the refused case as the node's signature | IncorrectSignature",
+    "  PASS  the court SIGNS the honest claim of 2 | The sources show 'No', for which the terms give the user 2, exactly what the settlement gives.",
+    "  PASS  the wallet got exactly 2 back; the node keeps the other 8 the terms give it",
+    "\nthe node service's rules (it countersigns openings only)",
+    "  PASS  a channel that does not approve Countersign is refused",
+    "  PASS  a first state with another deposit is refused",
+    "  PASS  a bet the node does not offer is refused",
+    "  PASS  a state the user did not sign is refused",
+    "  PASS  a channel that already exists is refused | this channel already exists",
+    "\n14/14 checks passed"
+  ]
+}

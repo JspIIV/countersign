@@ -1,0 +1,311 @@
+<script type="module">
+// Bundled builds, one file each, so the module CDN does not rate-limit the page.
+import { createClient } from "https://esm.sh/genlayer-js@2.0.0-rc.2?bundle";
+import { testnetBradbury } from "https://esm.sh/genlayer-js@2.0.0-rc.2/chains?bundle";
+import { BrowserProvider, Contract, Interface, AbiCoder, MaxUint256, formatUnits, Wallet } from "https://esm.sh/ethers@6.13.4";
+import { ChainProvider, CHAIN_RPCS } from "./rpc.js";
+import { BETS, definition, channelId, anchor, closeFor, signedMessage, withValidatorByte, countersigned, asTuple, signingData, pack, unpackState, unpackDef, DEPOSIT } from "./channel.js";
+
+const DEP = __DEP__;
+const PROOF = __PROOF__;
+const ERRORS = __ERRORS__;
+const NODE_API = __NODE_API__;
+const RPC = "https://rpc-bradbury.genlayer.com";
+const EXPLORER = "https://scan.bradbury.genlayer.com";
+const CHAIN_EXPLORER = "https://scan.testnet-chain.genlayer.com";
+const CHAIN_ID_HEX = "0x107d";
+const CHAIN_PARAMS = { chainId: CHAIN_ID_HEX, chainName: "GenLayer Bradbury", nativeCurrency: { name: "GEN", symbol: "GEN", decimals: 18 }, rpcUrls: CHAIN_RPCS, blockExplorerUrls: [CHAIN_EXPLORER] };
+const STATE_T = "tuple(uint64 version,uint8 intent,bytes32 metadata,tuple(uint64 chainId,address token,uint8 decimals,uint256 userAllocation,int256 userNetFlow,uint256 nodeAllocation,int256 nodeNetFlow) homeLedger,tuple(uint64 chainId,address token,uint8 decimals,uint256 userAllocation,int256 userNetFlow,uint256 nodeAllocation,int256 nodeNetFlow) nonHomeLedger,bytes userSig,bytes nodeSig)";
+const DEF_T = "tuple(uint32 challengeDuration,address user,address node,uint64 nonce,uint256 approvedSignatureValidators,bytes32 metadata)";
+const HUB_ABI = [`function createChannel(${DEF_T} def, ${STATE_T} initState) payable`, `function closeChannel(bytes32 channelId, ${STATE_T} candidate)`,
+  `function getChannelData(bytes32) view returns (uint8 status, ${DEF_T} def, ${STATE_T} lastState, uint256 challengeExpiry, uint256 lockedFunds)`];
+const CS_ABI = [`function fileCase(bytes32 channelId, ${STATE_T} anchor, ${STATE_T} settlement, string terms) returns (uint256)`,
+  "function caseCount() view returns (uint256)", "function rule(uint256 caseId, bool sign, bytes32 reason)",
+  "function validateSignature(bytes32 channelId, bytes signingData, bytes signature, address participant) view returns (uint256)",
+  "function getCase(uint256) view returns (tuple(bytes32 channelId,bytes32 stateHash,bytes32 termsHash,address proposer,address respondent,address token,uint64 anchorVersion,uint64 version,uint8 decimals,uint8 intent,uint8 verdict,uint64 filedAt,uint256 anchorUserShare,uint256 proposedUserShare,uint256 total,bytes32 reason))",
+  "event CaseFiled(uint256 indexed caseId, bytes32 indexed channelId, address proposer, address respondent, bytes32 stateHash)"];
+const USD_ABI = ["function approve(address,uint256) returns (bool)", "function balanceOf(address) view returns (uint256)", "function allowance(address,address) view returns (uint256)"];
+const VERDICT = ["NONE", "FILED", "SIGNED", "REFUSED"];
+
+const chain = new ChainProvider();
+const hub = new Contract(DEP.hub, HUB_ABI, chain), cs = new Contract(DEP.countersign, CS_ABI, chain), usd = new Contract(DEP.token, USD_ABI, chain);
+const errs = new Interface(ERRORS);
+const reader = createClient({ chain: testnetBradbury, endpoint: RPC });
+let account = null, eip1193 = null;
+const realFetch = window.fetch.bind(window);
+// The SDK quotes fees with an eth_call that has a gas price and no sender, which the node refuses from the zero address.
+window.fetch = async (input, init) => {
+  if (account && init && typeof init.body === "string" && init.body.includes('"eth_call"')) {
+    const body = JSON.parse(init.body);
+    for (const req of Array.isArray(body) ? body : [body]) if (req.method === "eth_call" && req.params?.[0] && !req.params[0].from) req.params[0].from = account;
+    return realFetch(input, { ...init, body: JSON.stringify(body) });
+  }
+  return realFetch(input, init);
+};
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const short = (a, n = 6) => (a ? `${String(a).slice(0, n)}...${String(a).slice(-4)}` : "");
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const tusd = (v) => formatUnits(v, 6).replace(/\.0$/, "");
+const glLink = (h, t) => `<a href="${EXPLORER}/tx/${h}" target="_blank" rel="noopener">${t || short(h)}</a>`;
+const chLink = (h, t) => `<a href="${CHAIN_EXPLORER}/tx/${h}" target="_blank" rel="noopener">${t || short(h)}</a>`;
+const store = { get: (k) => { try { return JSON.parse(localStorage.getItem("countersign." + k)); } catch { return null; } },
+  set: (k, v) => { try { localStorage.setItem("countersign." + k, JSON.stringify(pack(v))); } catch {} }, del: (k) => { try { localStorage.removeItem("countersign." + k); } catch {} } };
+function say(html, tone = "") { const s = $("status"); s.innerHTML = html; s.className = "status " + tone; }
+function reasonOf(e) {
+  const seen = new Set(), texts = [];
+  (function walk(x, d) { if (x == null || d > 5) return; if (typeof x === "string") { texts.push(x); return; } if (typeof x !== "object" || seen.has(x)) return; seen.add(x);
+    for (const k of Object.getOwnPropertyNames(x)) { try { walk(x[k], d + 1); } catch {} } })(e, 0);
+  for (const t of texts) { const m = t.match(/0x[0-9a-fA-F]{8,}/g); if (m) for (const d of m) { try { const p = errs.parseError(d); if (p) return p.name; } catch {} } }
+  if (e?.code === "ACTION_REJECTED" || e?.code === 4001) return "Rejected in the wallet.";
+  if (texts.some((t) => /-32017|Rate Limit/i.test(t))) return "The public RPC is rate limiting this browser; try again in a few seconds.";
+  return (e?.shortMessage || e?.message || String(e)).slice(0, 200);
+}
+async function nodeCall(op, body) {
+  const r = await fetch(`${NODE_API}?op=${op}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(pack(body || {})) });
+  const j = await r.json().catch(() => ({ error: "the node did not answer" }));
+  return { ok: r.ok, ...j };
+}
+
+// ------------------------------------------------------------------ wallet
+async function ensureWallet() {
+  eip1193 = window.ethereum;
+  if (!eip1193) throw new Error("No wallet found. Reading needs none; to open a channel, use a browser with MetaMask.");
+  if (!account) { const a = await eip1193.request({ method: "eth_requestAccounts" }); account = a && a[0]; $("connect").textContent = short(account); }
+  const cur = await eip1193.request({ method: "eth_chainId" });
+  if (String(cur).toLowerCase() !== CHAIN_ID_HEX) {
+    try { await eip1193.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_ID_HEX }] }); }
+    catch (err) { if (err && (err.code === 4902 || err.code === -32603)) await eip1193.request({ method: "wallet_addEthereumChain", params: [CHAIN_PARAMS] }); else throw err; }
+  }
+  return await new BrowserProvider(eip1193).getSigner();
+}
+async function balance() { if (account) $("bal").textContent = tusd(await usd.balanceOf(account)) + " tUSD"; }
+$("connect").onclick = async () => { try { await ensureWallet(); say("Connected " + short(account) + " on GenLayer Bradbury.", "good"); balance(); draw(); } catch (e) { say(reasonOf(e), "bad"); } };
+
+// ------------------------------------------------------------------ the channel
+const my = () => store.get("channel." + (account || "").toLowerCase());
+const keep = (c) => store.set("channel." + account.toLowerCase(), c);
+function stage() {
+  const c = account && my();
+  if (!c) return 1;
+  if (c.closed) return 6;
+  if (c.verdict === "SIGNED" || c.verdict === "REFUSED") return 5;
+  if (c.caseId != null) return 4;
+  if (c.claim) return 3;
+  if (c.opened) return 2;
+  return 1;
+}
+function draw() {
+  const s = stage();
+  document.querySelectorAll(".step").forEach((el) => { const i = Number(el.dataset.i); el.className = "step" + (i < s && i > 0 ? " done" : i === s || i === 0 ? " on" : ""); });
+  const c = account && my();
+  $("b-open").disabled = !account || s !== 1;
+  $("b-claim").disabled = s !== 2 && !(s === 5 && c?.verdict === "REFUSED");
+  $("b-file").disabled = s !== 3; $("b-ask").disabled = s !== 4; $("b-close").disabled = s !== 5;
+  $("b-close").textContent = c?.verdict === "REFUSED" ? "Try to close" : "Close";
+  const rows = [];
+  if (c) {
+    rows.push(["bet", esc(BETS[c.bet].title)], ["channel", `<span title="${c.cid}">${short(c.cid, 10)}</span>`]);
+    if (c.openTx) rows.push(["opened", chLink(c.openTx, "10 tUSD in, node signed the opening")]);
+    if (c.claim) rows.push(["your claim", `CLOSE: ${c.claim} tUSD to you, ${10 - Number(c.claim)} to the node`]);
+    if (c.nodeSaid) rows.push(["the node", esc(c.nodeSaid)]);
+    if (c.caseId != null) rows.push(["case", `#${c.caseId} ${c.fileTx ? chLink(c.fileTx, "filed") : ""}`]);
+    if (c.round) rows.push(["the court", glLink(c.round, "round")]);
+    if (c.verdict) rows.push(["verdict", `<span class="stamp ${c.verdict}">${c.verdict}</span>`]);
+    if (c.why) rows.push(["why", esc(c.why)]);
+    if (c.closeTx) rows.push(["closed", chLink(c.closeTx, `paid ${c.claim} tUSD to you, no node signature`)]);
+  }
+  $("doc").innerHTML = rows.length ? rows.map(([k, v]) => `<div class="row"><span>${k}</span><span>${v}</span></div>`).join("") : `<div class="row"><span>channel</span><span>none yet</span></div>`;
+}
+
+$("b-faucet").onclick = async () => {
+  try {
+    await ensureWallet();
+    say("Asking the node's faucet ...", "busy");
+    const r = await nodeCall("faucet", { user: account });
+    if (!r.ok) { say("The faucet said: " + esc(r.error), "bad"); return; }
+    say(`10 tUSD sent. ${chLink(r.tx, "transaction")}`, "good"); balance();
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+
+$("b-open").onclick = async () => {
+  try {
+    const s = await ensureWallet();
+    const bet = document.querySelector('input[name="bet"]:checked').value;
+    if ((await usd.balanceOf(account)) < DEPOSIT) { say("You need 10 tUSD: use step 1 first.", "bad"); return; }
+    if ((await usd.allowance(account, DEP.hub)) < DEPOSIT) {
+      say("Approve Yellow's hub to take your deposit, in MetaMask ...", "busy");
+      await (await new Contract(DEP.token, USD_ABI, s).approve(DEP.hub, MaxUint256)).wait();
+    }
+    const def = definition({ user: account, node: DEP.node, nonce: Date.now(), validatorId: DEP.validator_id });
+    const a = anchor(DEP.token, bet), cid = channelId(def);
+    say("Sign the first state in MetaMask: your 10 tUSD in, and the hash of the bet's terms. No gas.", "busy");
+    a.userSig = withValidatorByte(await s.signMessage(signedMessage(cid, a)));
+    say("Asking the node to sign the opening ...", "busy");
+    const r = await nodeCall("open", { def, anchor: a, bet });
+    if (!r.ok) { say("The node would not open: " + esc(r.error), "bad"); return; }
+    a.nodeSig = r.nodeSig;
+    say("Open the channel on Yellow's hub in MetaMask ...", "busy");
+    const tx = await new Contract(DEP.hub, HUB_ABI, s).createChannel(def, asTuple(a));
+    await tx.wait();
+    keep({ bet, def, anchor: a, cid, terms: r.terms, opened: true, openTx: tx.hash });
+    say(`Channel open with 10 tUSD. ${chLink(tx.hash, "transaction")}. Now claim your share.`, "good"); balance(); draw();
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+
+$("b-claim").onclick = async () => {
+  try {
+    const s = await ensureWallet();
+    const c = my(), share = document.querySelector('input[name="claim"]:checked').value;
+    const st = closeFor(DEP.token, c.bet, share);
+    say(`Sign your CLOSE in MetaMask: ${share} tUSD to you, ${10 - Number(share)} to the node. No gas.`, "busy");
+    st.userSig = withValidatorByte(await s.signMessage(signedMessage(c.cid, st)));
+    say("Asking the node to countersign ...", "busy");
+    const r = await nodeCall("settle", { channelId: c.cid, state: st });
+    Object.assign(c, { claim: share, close: st, nodeSaid: r.ok ? "signed" : r.error, caseId: null, round: null, verdict: null, why: null });
+    keep(c); draw();
+    say(`The node: "${esc(c.nodeSaid)}" File the case on Countersign.`, "bad");
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+
+$("b-file").onclick = async () => {
+  try {
+    const s = await ensureWallet();
+    const c = my();
+    say("File the case on Countersign in MetaMask ...", "busy");
+    const tx = await new Contract(DEP.countersign, CS_ABI, s).fileCase(c.cid, asTuple(unpackState(c.anchor)), asTuple(unpackState(c.close)), c.terms);
+    const rc = await tx.wait();
+    const ev = rc.logs.map((l) => { try { return cs.interface.parseLog(l); } catch { return null; } }).find((x) => x?.name === "CaseFiled");
+    c.caseId = Number(ev.args.caseId); c.fileTx = tx.hash; keep(c); draw();
+    say(`Case #${c.caseId} filed. ${chLink(tx.hash, "transaction")}. Ask Internet Court.`, "good"); loadRecord();
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+
+$("b-ask").onclick = async () => {
+  try {
+    await ensureWallet();
+    const c = my();
+    const gl = createClient({ chain: testnetBradbury, endpoint: RPC, account, provider: eip1193 });
+    const gasLimit = 300000n, maxGasPrice = 1000000000n, budget = gasLimit * maxGasPrice;
+    const feeParams = AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [gasLimit, maxGasPrice]);
+    // The verdict reaches Countersign as a message when it is final; this budget pays for it.
+    const messageAllocations = [{ messageType: 0, onAcceptance: false, recipient: DEP.countersign, budget, feeParams }];
+    const quote = await gl.estimateTransactionFees({ totalMessageFees: budget, messageAllocations });
+    say("Approve the request to Internet Court in MetaMask ...", "busy");
+    const hash = await gl.writeContract({ address: DEP.court, functionName: "rule", args: [c.caseId], value: 0n, fees: { distribution: quote.distribution, feeValue: quote.feeValue, messageAllocations } });
+    c.round = hash; keep(c); draw();
+    await follow(c);
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+async function follow(c) {
+  for (let i = 0; i < 400; i++) {
+    let tx = null; try { tx = await reader.getTransaction({ hash: c.round }); } catch {}
+    const name = String(tx?.statusName || "");
+    if (name === "FINALIZED") {
+      for (let k = 0; k < 40; k++) { if (Number((await cs.getCase(c.caseId)).verdict) > 1) break; say(`Final. Waiting for the court's own call to reach Countersign ... ${glLink(c.round, "round")}`, "busy"); await sleep(5000); }
+      const v = VERDICT[Number((await cs.getCase(c.caseId)).verdict)];
+      const k = JSON.parse(await reader.readContract({ address: DEP.court, functionName: "case", args: [c.caseId] }));
+      Object.assign(c, { verdict: v, why: k.why || "" }); keep(c); draw(); loadRecord();
+      say(v === "SIGNED" ? `The court countersigned: ${esc(k.why)} Close the channel.` : v === "REFUSED" ? `The court refused: ${esc(k.why)}` : `The round finished and changed nothing; ask again. ${glLink(c.round, "round")}`, v === "SIGNED" ? "good" : "bad");
+      return;
+    }
+    if (["UNDETERMINED", "CANCELED", "LEADER_TIMEOUT", "VALIDATORS_TIMEOUT"].includes(name)) { say(`The round ended ${name} and changed nothing. Ask again. ${glLink(c.round, "round")}`, "bad"); c.round = null; keep(c); draw(); return; }
+    say(name === "ACCEPTED" ? `Accepted by the validators. The court acts only once its verdict is final ... ${glLink(c.round, "round")}` : `Validators are reading the source ... ${(i + 1) * 6}s, ${name || "waiting for the network"}. ${glLink(c.round, "round")}`, "busy");
+    await sleep(6000);
+  }
+}
+
+$("b-close").onclick = async () => {
+  try {
+    const s = await ensureWallet();
+    const c = my();
+    const st = { ...unpackState(c.close), nodeSig: countersigned(DEP.validator_id, c.caseId) };
+    const h = new Contract(DEP.hub, HUB_ABI, s);
+    if (c.verdict === "REFUSED") {
+      try { await h.closeChannel.staticCall(c.cid, asTuple(st)); say("Unexpected: the hub would accept it.", "bad"); }
+      catch (e) { say(`Yellow's hub rejects it: ${esc(reasonOf(e))}. A refused case signs nothing. Claim the other answer and file again.`, "bad"); }
+      return;
+    }
+    say("Close the channel on Yellow's hub in MetaMask. The case id stands in for the node's signature ...", "busy");
+    const tx = await h.closeChannel(c.cid, asTuple(st));
+    await tx.wait();
+    c.closed = true; c.closeTx = tx.hash; keep(c); draw(); balance();
+    say(`Closed with no node signature: ${c.claim} tUSD back in your wallet. ${chLink(tx.hash, "transaction")}`, "good");
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+$("b-reset").onclick = () => { if (account) { store.del("channel." + account.toLowerCase()); draw(); say("Ready for a new channel.", ""); } };
+
+// ------------------------------------------------------------------ the record
+async function loadRecord() {
+  const n = Number(await cs.caseCount());
+  const ids = []; for (let i = n - 1; i >= 0 && ids.length < 30; i--) ids.push(i);
+  let signed = 0, refused = 0;
+  const rows = [];
+  // A few cases at a time: each court read is a GenLayer call of a few seconds.
+  const got = new Array(ids.length);
+  let next = 0;
+  await Promise.all([...Array(Math.min(5, ids.length))].map(async () => {
+    while (next < ids.length) {
+      const i = next++, id = ids[i];
+      got[i] = await Promise.all([reader.readContract({ address: DEP.court, functionName: "case", args: [id] }).then(JSON.parse).catch(() => ({})), cs.getCase(id)]);
+    }
+  }));
+  for (const [i, id] of ids.entries()) {
+    const [k, onChain] = got[i];
+    const v = VERDICT[Number(onChain.verdict)];
+    if (v === "SIGNED") signed++; if (v === "REFUSED") refused++;
+    const intent = Number(onChain.intent) === 1 ? "CLOSE" : "OPERATE";
+    rows.push(`<div class="r"><span class="mono">#${id}</span><span>${intent} by the ${onChain.proposer.toLowerCase() === DEP.node.toLowerCase() ? "node" : "user"}<br/><span class="mono" style="font-size:11px;color:var(--dim)">${short(onChain.channelId, 10)}</span></span><span class="why">${esc(k.why || (v === "FILED" ? "waiting for the court" : ""))}</span><span class="mono">${tusd(onChain.proposedUserShare)} of ${tusd(onChain.total)}</span><span><span class="stamp ${v}">${v}</span></span></div>`);
+  }
+  $("s-cases").textContent = n; $("s-signed").textContent = signed + (n > 30 ? "+" : ""); $("s-refused").textContent = refused + (n > 30 ? "+" : "");
+  $("rec").innerHTML = `<div class="r h"><span>Case</span><span>Claim</span><span>What the court found</span><span>User share</span><span>Verdict</span></div>` + rows.join("");
+}
+
+// ------------------------------------------------------------------ try to break it
+const P = PROOF.attack, stranger = Wallet.createRandom().address;
+const ATTACKS = [
+  { t: "Rule a case yourself", d: "A stranger calls Countersign's rule() to sign a filed case without the court.",
+    run: () => cs.rule.staticCall(P.F_10.caseId, true, "0x" + "11".repeat(32), { from: stranger }), want: "revert" },
+  { t: "Use a refused case", d: `Case #${P.F_10.caseId} was REFUSED. Offered as the node's signature for the very state it was filed for, it signs nothing.`,
+    run: () => cs.validateSignature(P.F.cid, signingData(unpackState(P.F_10.state)), AbiCoder.defaultAbiCoder().encode(["uint256"], [P.F_10.caseId]), DEP.node), want: "zero" },
+  { t: "Reuse a signed case on another state", d: `Case #${P.F_2.caseId} was SIGNED for a 2 tUSD close. Offered for the 10 tUSD close of the same channel, it signs nothing.`,
+    run: () => cs.validateSignature(P.F.cid, signingData(unpackState(P.F_10.state)), AbiCoder.defaultAbiCoder().encode(["uint256"], [P.F_2.caseId]), DEP.node), want: "zero" },
+  { t: "Carry a signed case to another channel", d: `The same SIGNED case, for the same state, in channel E instead of F.`,
+    run: () => cs.validateSignature(P.E.cid, signingData(unpackState(P.F_2.state)), AbiCoder.defaultAbiCoder().encode(["uint256"], [P.F_2.caseId]), DEP.node), want: "zero" },
+  { t: "Sign for the side that proposed", d: "The SIGNED case stands in for the silent node only. Offered as the user's own signature, it signs nothing.",
+    run: () => cs.validateSignature(P.F.cid, signingData(unpackState(P.F_2.state)), AbiCoder.defaultAbiCoder().encode(["uint256"], [P.F_2.caseId]), P.reviewer), want: "zero" },
+  { t: "Point at a case that does not exist", d: "A countersignature naming case 999999.",
+    run: () => cs.validateSignature(P.F.cid, signingData(unpackState(P.F_2.state)), AbiCoder.defaultAbiCoder().encode(["uint256"], [999999]), DEP.node), want: "zero" },
+];
+$("atks").innerHTML = ATTACKS.map((a, i) => `<div class="atk"><b>${esc(a.t)}</b><p>${esc(a.d)}</p><button class="btn small ghost" data-atk="${i}">Try it</button><span class="out" id="atk-${i}"></span></div>`).join("");
+document.querySelectorAll("[data-atk]").forEach((b) => (b.onclick = async () => {
+  const a = ATTACKS[Number(b.dataset.atk)], out = $("atk-" + b.dataset.atk);
+  out.className = "out"; out.textContent = "calling GenLayer Chain ...";
+  try {
+    const r = await a.run();
+    if (a.want === "zero") { const ok = BigInt(r) !== 1n; out.className = "out " + (ok ? "good" : "bad"); out.textContent = ok ? "refused: validateSignature says not valid" : "it would sign"; }
+    else { out.className = "out bad"; out.textContent = "it went through"; }
+  } catch (e) { out.className = "out good"; out.textContent = "refused: " + reasonOf(e); }
+}));
+
+// ------------------------------------------------------------------ proof and addresses
+const all = PROOF.checks;
+$("s-proof").textContent = `${all.filter((c) => c.ok).length}/${all.length}`;
+$("proof-title").textContent = `${all.filter((c) => c.ok).length} of ${all.length} checks passed on chain.`;
+$("proof-list").innerHTML = all.map((c) => `<div><i class="${c.ok ? "" : "no"}">${c.ok ? "PASS" : "FAIL"}</i><span>${esc(c.label)}${c.detail ? `<br/><small>${esc(String(c.detail).slice(0, 160))}</small>` : ""}</span></div>`).join("");
+const addr = (a, gl) => `<a class="mono" href="${gl ? EXPLORER : CHAIN_EXPLORER}/address/${a}" target="_blank" rel="noopener">${a}</a>`;
+$("addr").innerHTML = [
+  ["Internet Court (the court)", addr(DEP.court, true), "Intelligent Contract on GenLayer Bradbury: reads the terms and the source, rules SIGNED or REFUSED, and tells Countersign itself"],
+  ["Countersign", addr(DEP.countersign), `the Nitrolite signature validator (id ${DEP.validator_id}), on GenLayer Chain`],
+  ["ChannelHub", addr(DEP.hub), "Yellow's Nitrolite hub, unmodified, byte-identical to Yellow's Base Sepolia deployment"],
+  ["The demo node", addr(DEP.node), "signs channel openings, then goes silent"],
+  ["Test USD", addr(DEP.token), "the channel token; the node's faucet hands out 10 at a time"],
+].map((r) => `<tr><td>${r[0]}</td><td>${r[1]}<br/><small>${r[2]}</small></td></tr>`).join("");
+
+if (window.ethereum) window.ethereum.request({ method: "eth_accounts" }).then((a) => { if (a && a[0]) { account = a[0]; $("connect").textContent = short(account); balance(); draw(); const c = my(); if (c?.round && !c.verdict) follow(c); } }).catch(() => {});
+draw();
+loadRecord().catch((e) => console.warn("record", e));
+</script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+{
+  "outputDirectory": "docs",
+  "functions": { "api/node.mjs": { "maxDuration": 30 } }
+}

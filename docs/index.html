@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Countersign: when the other side won't sign</title>
+<meta name="description" content="An open source GenLayer testnet demo: Internet Court as a Yellow Nitrolite signature validator. When a node refuses to sign the settlement the terms require, the court's countersignature stands in for it on Yellow's own ChannelHub." />
+<link rel="icon" href="logo.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+/* Countersign: a notary's desk. Ink-dark paper, Yellow's signal yellow for the seal, a stamp for every verdict. */
+:root {
+  --ink: #0f0f12; --paper: #16161b; --card: #1c1c22; --raise: #24242c; --line: rgba(255, 255, 255, .09); --line2: rgba(255, 255, 255, .18);
+  --text: #f3f1ea; --soft: #b9b6ab; --dim: #7d7a71; --seal: #fcd535; --seal2: #ffe680; --green: #63e2a8; --red: #ff7b6b; --blue: #8fb8ff;
+  --serif: "Fraunces", Georgia, serif; --sans: "Inter Tight", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--ink); color: var(--text); font: 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .6;
+  background: radial-gradient(ellipse at 80% -10%, rgba(252, 213, 53, .10), transparent 50%), radial-gradient(ellipse at 0% 60%, rgba(143, 184, 255, .05), transparent 45%); }
+main, header, footer { position: relative; z-index: 1; }
+a { color: var(--seal); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, .mono { font-family: var(--mono); font-size: .85em; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
+@media (max-width: 640px) { .wrap { padding: 0 16px; } }
+
+.bar { position: sticky; top: 0; z-index: 30; background: rgba(15, 15, 18, .85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 26px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); font: 600 22px var(--serif); }
+.brand:hover { text-decoration: none; }
+.brand svg { width: 26px; height: 26px; }
+.nav { display: flex; gap: 20px; font-size: 14px; }
+.nav a { color: var(--soft); }
+.bar .right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.pill { font: 500 12px var(--mono); color: var(--soft); border: 1px solid var(--line2); border-radius: 999px; padding: 5px 10px; white-space: nowrap; }
+@media (max-width: 860px) { .nav { display: none; } }
+
+.btn { font: 600 14px var(--sans); background: var(--seal); color: #191502; border: 0; border-radius: 10px; padding: 10px 16px; cursor: pointer; transition: transform .08s, box-shadow .2s; }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px -10px rgba(252, 213, 53, .7); }
+.btn:disabled { opacity: .32; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line2); }
+.btn.ghost:hover { box-shadow: none; border-color: var(--soft); }
+.btn.small { padding: 7px 12px; font-size: 13px; }
+
+.hero { padding: 64px 0 30px; }
+.kicker { font: 500 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+h1 { font: 500 clamp(40px, 6vw, 74px)/1.02 var(--serif); letter-spacing: -.02em; margin: 14px 0 18px; }
+h1 em, h2 em { font-style: italic; color: var(--seal); }
+h2 { font: 500 clamp(28px, 3.4vw, 40px)/1.1 var(--serif); letter-spacing: -.01em; margin: 8px 0 0; }
+h3 { font: 600 18px var(--sans); margin: 0 0 6px; }
+.lede { max-width: 720px; font-size: 18px; color: var(--soft); }
+.cta { display: flex; gap: 10px; flex-wrap: wrap; margin: 26px 0 40px; }
+
+.desk { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--paper); }
+.desk > div { padding: 22px; border-right: 1px solid var(--line); }
+.desk > div:last-child { border-right: 0; }
+.desk b { display: block; font: 600 13px var(--mono); color: var(--seal); letter-spacing: .06em; margin-bottom: 6px; }
+.desk p { margin: 0; color: var(--soft); font-size: 14px; }
+@media (max-width: 860px) { .desk { grid-template-columns: 1fr; } .desk > div { border-right: 0; border-bottom: 1px solid var(--line); } }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 18px 18px; margin-top: -1px; }
+.stats div { padding: 16px 22px; border-right: 1px solid var(--line); }
+.stats div:last-child { border-right: 0; }
+.stats b { display: block; font: 500 30px var(--serif); }
+.stats span { font: 12px var(--mono); color: var(--dim); }
+@media (max-width: 640px) { .stats { grid-template-columns: 1fr 1fr; } }
+
+.band { padding: 70px 0; border-top: 1px solid var(--line); }
+.sh { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; margin-bottom: 30px; }
+.sh p { color: var(--soft); margin: 0; }
+@media (max-width: 860px) { .sh { grid-template-columns: 1fr; gap: 12px; } }
+
+.flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.flow .st { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.flow .n { font: 600 12px var(--mono); color: var(--seal); }
+.flow b { display: block; margin: 6px 0 4px; }
+.flow p { margin: 0; font-size: 14px; color: var(--soft); }
+.flow small { display: block; margin-top: 10px; font: 11px var(--mono); color: var(--dim); }
+@media (max-width: 960px) { .flow { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .flow { grid-template-columns: 1fr; } }
+
+.play { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; }
+@media (max-width: 960px) { .play { grid-template-columns: 1fr; } }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; min-width: 0; }
+.panel .sub { color: var(--dim); font-size: 13px; margin: 0 0 14px; }
+.step { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); opacity: .45; }
+.step.on { opacity: 1; }
+.step.done { opacity: .8; }
+.step .n { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line2); display: grid; place-items: center; font: 600 12px var(--mono); }
+.step.on .n { background: var(--seal); color: #191502; border-color: var(--seal); }
+.step.done .n { background: var(--green); color: #052414; border-color: var(--green); }
+.step b { display: block; }
+.step span { font-size: 13px; color: var(--soft); }
+.choice { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.choice input { display: none; }
+.choice label { font: 12px var(--mono); border: 1px solid var(--line2); border-radius: 8px; padding: 5px 9px; cursor: pointer; color: var(--soft); }
+.choice input:checked + label { border-color: var(--seal); color: var(--seal); background: rgba(252, 213, 53, .08); }
+.status { margin-top: 14px; border-radius: 10px; padding: 12px 14px; font-size: 14px; background: var(--raise); color: var(--soft); overflow-wrap: anywhere; }
+.status.good { background: rgba(99, 226, 168, .1); color: var(--green); }
+.status.bad { background: rgba(255, 123, 107, .1); color: var(--red); }
+.status.busy { background: rgba(252, 213, 53, .08); color: var(--seal2); }
+
+.doc { font: 13px var(--mono); }
+.doc .row { display: grid; grid-template-columns: 120px 1fr; gap: 10px; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+.doc .row span:first-child { color: var(--dim); }
+.doc .row span:last-child { overflow-wrap: anywhere; }
+.stamp { display: inline-block; font: 700 12px var(--mono); letter-spacing: .12em; padding: 4px 10px; border: 2px solid currentColor; border-radius: 6px; transform: rotate(-4deg); }
+.stamp.SIGNED { color: var(--green); }
+.stamp.REFUSED { color: var(--red); }
+.stamp.FILED { color: var(--seal); }
+
+.rec { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.rec .r { display: grid; grid-template-columns: 60px 1.4fr 2.2fr 90px 110px; gap: 14px; padding: 14px 18px; border-top: 1px solid var(--line); align-items: center; font-size: 14px; }
+.rec .r.h { border-top: 0; background: var(--paper); font: 500 11px var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: .08em; }
+.rec .why { color: var(--soft); font-size: 13px; }
+.rec .more { padding: 14px 18px; color: var(--dim); border-top: 1px solid var(--line); }
+@media (max-width: 860px) { .rec .r { grid-template-columns: 50px 1fr 90px; } .rec .r > :nth-child(3), .rec .r > :nth-child(4) { display: none; } }
+
+.atks { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.atk { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.atk p { margin: 0; color: var(--soft); font-size: 14px; flex: 1; }
+.atk .out { font: 12px var(--mono); min-height: 18px; }
+.out.good { color: var(--green); }
+.out.bad { color: var(--red); }
+
+.proof { columns: 2; column-gap: 26px; }
+.proof div { break-inside: avoid; display: grid; grid-template-columns: 46px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.proof i { font: normal 700 11px var(--mono); color: var(--green); }
+.proof i.no { color: var(--red); }
+.proof small { color: var(--dim); }
+@media (max-width: 760px) { .proof { columns: 1; } }
+
+table.addr { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.addr td { padding: 12px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.addr td:first-child { width: 230px; color: var(--soft); }
+table.addr small { color: var(--dim); }
+table.addr a { overflow-wrap: anywhere; }
+footer { border-top: 1px solid var(--line); padding: 30px 0 50px; color: var(--dim); font-size: 13px; }
+
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="none" stroke="#fcd535" stroke-width="2.4"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#fcd535" stroke-width="1.2" stroke-dasharray="2 2"/><path d="M11 17.5 L14.5 21 L21.5 11.5" fill="none" stroke="#f3f1ea" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Countersign
+    </a>
+    <nav class="nav"><a href="#how">How it works</a><a href="#try">Try it</a><a href="#record">The record</a><a href="#break">Try to break it</a><a href="#proof">Proof</a><a href="#contracts">Contracts</a></nav>
+    <div class="right"><span class="pill" id="bal">GenLayer Bradbury</span><button class="btn small" id="connect">Connect wallet</button></div>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="kicker">Yellow Nitrolite &middot; Internet Court &middot; GenLayer</div>
+    <h1>When the other side<br/>won't sign, <em>the court does.</em></h1>
+    <p class="lede">A Yellow state channel moves money only on states both sides signed. If the node goes silent after the session,
+      the user's settlement is stuck at the last state both signed. Countersign is a Nitrolite signature validator: Internet Court reads
+      the terms both committed to, checks the cited source, and when the terms require the settlement, its countersignature stands in
+      for the silent side on Yellow's own ChannelHub.</p>
+    <div class="cta"><a class="btn" href="#try">Open a channel</a><a class="btn ghost" href="#record">Read the record</a><a class="btn ghost" href="https://github.com/JspIIV/countersign" target="_blank" rel="noopener">Code</a></div>
+    <div class="desk">
+      <div><b>THE GAP</b><p>Yellow's own Internet Court skill notes it: a Nitrolite session "has no dispute mechanism, challenge, or timeout of its own". A refusal freezes the money.</p></div>
+      <div><b>THE HOOK</b><p>Nitrolite lets a channel approve extra signature validators. A channel that approves Countersign accepts the court's signature for the side that refuses.</p></div>
+      <div><b>THE LIMIT</b><p>The court signs only the exact state the terms require, only in that channel, only for the silent side. Everything else it refuses, often in code before any judge reads a word.</p></div>
+    </div>
+    <div class="stats">
+      <div><b id="s-cases">..</b><span>cases filed</span></div>
+      <div><b id="s-signed">..</b><span>countersigned</span></div>
+      <div><b id="s-refused">..</b><span>refused</span></div>
+      <div><b id="s-proof">..</b><span>checks proven</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="how">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">How it works</div><h2>Five steps, one of them a <em>court.</em></h2></div>
+      <p>Everything except the judgement happens on Yellow's ChannelHub, byte-identical to Yellow's own Base Sepolia hub. The court only answers one question: which answer does the source show.</p></div>
+    <div class="flow">
+      <div class="st"><div class="n">01</div><b>Commit</b><p>The first state, signed by both, carries the hash of the terms: a question, a source, a user share per answer.</p><small>createChannel</small></div>
+      <div class="st"><div class="n">02</div><b>Silence</b><p>The session ends. One side proposes the settlement; the other never signs it.</p><small>no signature</small></div>
+      <div class="st"><div class="n">03</div><b>File</b><p>Anybody files the anchor, the signed settlement and the terms on Countersign, which checks them against the hub.</p><small>Countersign.fileCase</small></div>
+      <div class="st"><div class="n">04</div><b>Rule</b><p>GenLayer validators read the source and agree on the answer; the shares are compared in code. Final: SIGNED or REFUSED.</p><small>court.rule</small></div>
+      <div class="st"><div class="n">05</div><b>Enforce</b><p>The case id is the countersignature. The hub accepts it for the silent side, and the channel closes or checkpoints.</p><small>closeChannel</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="try">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">Try it</div><h2>Open a channel with a node that <em>goes silent.</em></h2></div>
+      <p>You are the user, with MetaMask on GenLayer Bradbury (you need a little test GEN for gas). The demo node countersigns your channel opening, then refuses every settlement. Claim honestly and get your money back without it; claim falsely and watch the court refuse.</p></div>
+    <div class="play">
+      <div class="panel">
+        <h3>Your channel</h3>
+        <p class="sub">Every step is a real transaction on GenLayer Chain or GenLayer Bradbury.</p>
+        <div class="step" data-i="0"><div class="n">1</div><div><b>Get 10 test dollars</b><span>From the node's faucet, if your wallet holds fewer than 10.</span></div><button class="btn small" id="b-faucet">Get tUSD</button></div>
+        <div class="step" data-i="1"><div class="n">2</div><div><b>Open a channel on a bet</b><span>You deposit 10 tUSD on Yellow's hub; the first state commits to the bet. The node signs the opening.</span>
+          <div class="choice"><input type="radio" name="bet" id="bet-a" value="above8800" checked><label for="bet-a">Everest is above 8,800 m</label><input type="radio" name="bet" id="bet-b" value="below8000"><label for="bet-b">Everest is below 8,000 m</label></div>
+          <span style="display:block;margin-top:6px">Either way: if the answer is Yes, you get 10 back; if No, you get 2 and the node 8.</span></div><button class="btn small" id="b-open" disabled>Open</button></div>
+        <div class="step" data-i="2"><div class="n">3</div><div><b>Claim your share</b><span>You sign a CLOSE and ask the node to countersign it. It will not.</span>
+          <div class="choice"><input type="radio" name="claim" id="cl-yes" value="10" checked><label for="cl-yes">The answer is Yes: 10 to me</label><input type="radio" name="claim" id="cl-no" value="2"><label for="cl-no">The answer is No: 2 to me</label></div></div><button class="btn small" id="b-claim" disabled>Claim</button></div>
+        <div class="step" data-i="3"><div class="n">4</div><div><b>File the case</b><span>Countersign checks your anchor, your signed CLOSE and the terms against the hub.</span></div><button class="btn small" id="b-file" disabled>File</button></div>
+        <div class="step" data-i="4"><div class="n">5</div><div><b>Ask Internet Court</b><span>Validators read the source. A few minutes; the page follows the round until it is final.</span></div><button class="btn small" id="b-ask" disabled>Ask</button></div>
+        <div class="step" data-i="5"><div class="n">6</div><div><b>Close without the node</b><span>SIGNED: the case id stands in for the node's signature and the hub pays you. REFUSED: the hub will not take it; claim again.</span></div><button class="btn small" id="b-close" disabled>Close</button></div>
+        <div class="status" id="status">Connect MetaMask to begin. The page adds GenLayer Bradbury (chain 4221).</div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn small ghost" id="b-reset">Start a new channel</button></div>
+      </div>
+      <div class="panel">
+        <h3>The paperwork</h3>
+        <p class="sub">What the hub and the court hold for your channel, as it happens.</p>
+        <div class="doc" id="doc"><div class="row"><span>channel</span><span>none yet</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="record">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">The record</div><h2>Every case Countersign has <em>heard.</em></h2></div>
+      <p>Read live from Countersign on GenLayer Chain and the court on GenLayer Bradbury: the share each settlement claimed, the answer the court found in the source, and the stamp.</p></div>
+    <div class="rec" id="rec"><div class="r h"><span>Case</span><span>Claim</span><span>What the court found</span><span>Share</span><span>Verdict</span></div><div class="more">Reading the record...</div></div>
+  </div>
+</section>
+
+<section class="band" id="break">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">Try to break it</div><h2>Each attack runs against the <em>live contracts.</em></h2></div>
+      <p>Free simulations (eth_call) against the deployed Countersign, using real cases from the proof. No wallet needed.</p></div>
+    <div class="atks" id="atks"></div>
+  </div>
+</section>
+
+<section class="band" id="proof">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">Proof</div><h2 id="proof-title">Every path, on chain.</h2></div>
+      <p>scripts/prove.mjs and scripts/prove_flow.mjs, against the deployed contracts. Phase 2 ran after the validator's one-day activation on Yellow's hub; phase 3 is the path above with a brand-new wallet and the real node service.</p></div>
+    <div class="proof" id="proof-list"></div>
+  </div>
+</section>
+
+<section class="band" id="contracts">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">Contracts</div><h2>Yellow's hub, <em>unmodified.</em></h2></div>
+      <p>The ChannelHub is built from layer-3/nitrolite at the commit Yellow deployed as sandbox v1.3.0, and matches Yellow's live Base Sepolia hub in all 23,945 executable bytes (scripts/verify_evm.mjs).</p></div>
+    <table class="addr" id="addr"></table>
+  </div>
+</section>
+</main>
+<footer><div class="wrap">Countersign is an open source testnet demo on GenLayer Bradbury, built for Internet Court with Yellow's Nitrolite in mind. Test tokens only. MIT.</div></footer>
+<script type="module">
+// Bundled builds, one file each, so the module CDN does not rate-limit the page.
+import { createClient } from "https://esm.sh/genlayer-js@2.0.0-rc.2?bundle";
+import { testnetBradbury } from "https://esm.sh/genlayer-js@2.0.0-rc.2/chains?bundle";
+import { BrowserProvider, Contract, Interface, AbiCoder, MaxUint256, formatUnits, Wallet } from "https://esm.sh/ethers@6.13.4";
+import { ChainProvider, CHAIN_RPCS } from "./rpc.js";
+import { BETS, definition, channelId, anchor, closeFor, signedMessage, withValidatorByte, countersigned, asTuple, signingData, pack, unpackState, unpackDef, DEPOSIT } from "./channel.js";
+
+const DEP = {"hub": "0x6999925Cc2F8a17A0D28c43840eE03044412EE87", "countersign": "0x1D5A4e5084d97e0dEe3cEFA69edba2e419Fe4efa", "court": "0x77E0695505BeD07dB72F14efB685DE16a498E976", "token": "0x7D680257bD85CD110bAc03fdD4Da657ba88bf10a", "node": "0x0b57877ec84D96b672CD47D8Ea4424283fDB9F6C", "validator_id": 2};
+const PROOF = {"checks": [{"label": "the hub stored channel A with Countersign approved in its definition", "ok": true, "detail": ""}, {"label": "terms that are not the ones the anchor commits to are refused", "ok": true, "detail": ""}, {"label": "an anchor the node never signed is refused", "ok": true, "detail": ""}, {"label": "a settlement that is not newer than the anchor is refused", "ok": true, "detail": ""}, {"label": "a settlement both sides already signed needs no court", "ok": true, "detail": ""}, {"label": "a settlement neither side signed is refused", "ok": true, "detail": ""}, {"label": "the same settlement cannot be filed twice", "ok": true, "detail": ""}, {"label": "a CLOSE that pays out more than the channel holds is refused", "ok": true, "detail": ""}, {"label": "nobody but the court can rule", "ok": true, "detail": ""}, {"label": "A1 (the user asks for 20, a share no outcome names): REFUSED, wanted REFUSED, landed on Countersign as REFUSED", "ok": true, "detail": "The settlement gives the user 20, a share the terms name for no answer."}, {"label": "A2 (the user asks for 15, the share for Yes): SIGNED, wanted SIGNED, landed on Countersign as SIGNED", "ok": true, "detail": "The sources show 'Yes', for which the terms give the user 15, exactly what the settlement gives."}, {"label": "B1 (the node closes: 5 to the user, 5 to the node): SIGNED, wanted SIGNED, landed on Countersign as SIGNED", "ok": true, "detail": "The sources show 'No', for which the terms give the user 5, exactly what the settlement gives."}, {"label": "C1 (the user asks for 15; the agreement says the node conceded): REFUSED, wanted REFUSED, landed on Countersign as REFUSED", "ok": true, "detail": "The sources show 'No', for which the terms give the user 5, but the settlement gives 15."}, {"label": "case A2 signs A2 for the node", "ok": true, "detail": ""}, {"label": "...not for the user who proposed it", "ok": true, "detail": ""}, {"label": "...not for another state of the same channel", "ok": true, "detail": ""}, {"label": "...not in another channel", "ok": true, "detail": ""}, {"label": "a refused case signs nothing", "ok": true, "detail": ""}, {"label": "a case that does not exist signs nothing", "ok": true, "detail": ""}, {"label": "a malformed countersignature signs nothing", "ok": true, "detail": ""}, {"label": "the court never signs a challenge", "ok": true, "detail": ""}, {"label": "the hub refuses a countersignature until the node's registration has aged a day", "ok": true, "detail": "ValidatorNotActive"}, {"label": "a new wallet gets 10 tUSD from the node", "ok": true, "detail": "0x19208c925123caca3ccfca3ac6e06de0a1f03ddc9fc51567ec0afc869d99350c"}, {"label": "a wallet that already holds 10 gets nothing more", "ok": true, "detail": "this wallet already holds 10 tUSD or more"}, {"label": "the node refuses to sign the settlement it owes", "ok": true, "detail": ""}, {"label": "the court SIGNS the claim of 10: the source shows Yes", "ok": true, "detail": "The sources show 'Yes', for which the terms give the user 10, exactly what the settlement gives."}, {"label": "an identical settlement in another channel is its own case (the v1 collision is gone)", "ok": true, "detail": "case 5 beside E's case 4"}, {"label": "the court REFUSES a claim of 10: the source shows No", "ok": true, "detail": "The sources show 'No', for which the terms give the user 2, but the settlement gives 10."}, {"label": "the court SIGNS the honest claim of 2", "ok": true, "detail": "The sources show 'No', for which the terms give the user 2, exactly what the settlement gives."}, {"label": "a channel that does not approve Countersign is refused", "ok": true, "detail": ""}, {"label": "a first state with another deposit is refused", "ok": true, "detail": ""}, {"label": "a bet the node does not offer is refused", "ok": true, "detail": ""}, {"label": "a state the user did not sign is refused", "ok": true, "detail": ""}, {"label": "a channel that already exists is refused", "ok": true, "detail": "this channel already exists"}], "attack": {"reviewer": "0x975Cf0c5ED1873b16258e14dF86ca78985149AbC", "E": {"cid": "0x014ab0a26ff7ad2f20e6a8d0ed869734bdb6d42fe9fd06575854b41f34fd5d42"}, "F": {"cid": "0x01d89e41352245155ffa888278d47e6c1861073f9dc0f3c69810c156be7e2877"}, "F_10": {"caseId": 6, "state": {"version": "2", "intent": 1, "metadata": "0x43c173ab8ed7046be378d2904a6f20216f4388f1511cd4429c01b98eb0eb0ea9", "homeLedger": {"chainId": "4221", "token": "0x7D680257bD85CD110bAc03fdD4Da657ba88bf10a", "decimals": 6, "userAllocation": "0", "userNetFlow": "0", "nodeAllocation": "0", "nodeNetFlow": "0"}, "userSig": "0x00d42df2b86d357616dbb565fed6fd8a9a19cbd35fdc738cef3a171e7d1ff7ee407ca9a9c31b810d277e69736c99252b96e96d24cde819d62311b1cab14e9029c71c"}}, "F_2": {"caseId": 7, "state": {"version": "2", "intent": 1, "metadata": "0x43c173ab8ed7046be378d2904a6f20216f4388f1511cd4429c01b98eb0eb0ea9", "homeLedger": {"chainId": "4221", "token": "0x7D680257bD85CD110bAc03fdD4Da657ba88bf10a", "decimals": 6, "userAllocation": "0", "userNetFlow": "8000000", "nodeAllocation": "0", "nodeNetFlow": "-8000000"}, "userSig": "0x00ae36d149d6fe7a5521cf7cc92291819202de2900f766c50b877be872353c1cf04df709bc26068163856787c05314f8f75b3fa9f36280b702735dcdb58c3df5b41c"}}}};
+const ERRORS = [{"inputs": [{"internalType": "uint256", "name": "caseId", "type": "uint256"}], "name": "AlreadyFiled", "type": "error"}, {"inputs": [], "name": "AlreadyRuled", "type": "error"}, {"inputs": [], "name": "AlreadySignedByBoth", "type": "error"}, {"inputs": [], "name": "AnchorNotSigned", "type": "error"}, {"inputs": [], "name": "ChannelNotOpen", "type": "error"}, {"inputs": [], "name": "CourtAlreadySet", "type": "error"}, {"inputs": [], "name": "EmptyChannelId", "type": "error"}, {"inputs": [], "name": "IncorrectSettlement", "type": "error"}, {"inputs": [], "name": "InvalidSignerAddress", "type": "error"}, {"inputs": [], "name": "NoProposerSignature", "type": "error"}, {"inputs": [], "name": "NoSuchCase", "type": "error"}, {"inputs": [], "name": "OnlyCourt", "type": "error"}, {"inputs": [], "name": "OnlyDeployer", "type": "error"}, {"inputs": [], "name": "SharesDoNotAddUp", "type": "error"}, {"inputs": [], "name": "TermsMismatch", "type": "error"}, {"inputs": [], "name": "TermsTooLong", "type": "error"}, {"inputs": [{"internalType": "address", "name": "collision", "type": "address"}], "name": "AddressCollision", "type": "error"}, {"inputs": [], "name": "ChallengerVersionTooLow", "type": "error"}, {"inputs": [], "name": "ECDSAInvalidSignature", "type": "error"}, {"inputs": [{"internalType": "uint256", "name": "length", "type": "uint256"}], "name": "ECDSAInvalidSignatureLength", "type": "error"}, {"inputs": [{"internalType": "bytes32", "name": "s", "type": "bytes32"}], "name": "ECDSAInvalidSignatureS", "type": "error"}, {"inputs": [], "name": "EmptySignature", "type": "error"}, {"inputs": [], "name": "IncorrectAmount", "type": "error"}, {"inputs": [], "name": "IncorrectChallengeDuration", "type": "error"}, {"inputs": [], "name": "IncorrectChannelId", "type": "error"}, {"inputs": [], "name": "IncorrectChannelStatus", "type": "error"}, {"inputs": [], "name": "IncorrectMsgSender", "type": "error"}, {"inputs": [], "name": "IncorrectNode", "type": "error"}, {"inputs": [], "name": "IncorrectSignature", "type": "error"}, {"inputs": [], "name": "IncorrectStateIntent", "type": "error"}, {"inputs": [], "name": "IncorrectValue", "type": "error"}, {"inputs": [], "name": "InsufficientBalance", "type": "error"}, {"inputs": [], "name": "InvalidAddress", "type": "error"}, {"inputs": [], "name": "InvalidValidatorId", "type": "error"}, {"inputs": [{"internalType": "address", "name": "to", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}], "name": "NativeTransferFailed", "type": "error"}, {"inputs": [], "name": "NoChannelIdFoundForEscrow", "type": "error"}, {"inputs": [], "name": "ReentrancyGuardReentrantCall", "type": "error"}, {"inputs": [{"internalType": "int256", "name": "value", "type": "int256"}], "name": "SafeCastOverflowedIntToUint", "type": "error"}, {"inputs": [{"internalType": "address", "name": "token", "type": "address"}], "name": "SafeERC20FailedOperation", "type": "error"}, {"inputs": [{"internalType": "uint8", "name": "validatorId", "type": "uint8"}], "name": "ValidatorAlreadyRegistered", "type": "error"}, {"inputs": [{"internalType": "uint8", "name": "validatorId", "type": "uint8"}, {"internalType": "uint64", "name": "activatesAt", "type": "uint64"}], "name": "ValidatorNotActive", "type": "error"}, {"inputs": [], "name": "ValidatorNotApproved", "type": "error"}, {"inputs": [{"internalType": "uint8", "name": "validatorId", "type": "uint8"}], "name": "ValidatorNotRegistered", "type": "error"}];
+const NODE_API = "https://countersign-node.vercel.app/api/node";
+const RPC = "https://rpc-bradbury.genlayer.com";
+const EXPLORER = "https://scan.bradbury.genlayer.com";
+const CHAIN_EXPLORER = "https://scan.testnet-chain.genlayer.com";
+const CHAIN_ID_HEX = "0x107d";
+const CHAIN_PARAMS = { chainId: CHAIN_ID_HEX, chainName: "GenLayer Bradbury", nativeCurrency: { name: "GEN", symbol: "GEN", decimals: 18 }, rpcUrls: CHAIN_RPCS, blockExplorerUrls: [CHAIN_EXPLORER] };
+const STATE_T = "tuple(uint64 version,uint8 intent,bytes32 metadata,tuple(uint64 chainId,address token,uint8 decimals,uint256 userAllocation,int256 userNetFlow,uint256 nodeAllocation,int256 nodeNetFlow) homeLedger,tuple(uint64 chainId,address token,uint8 decimals,uint256 userAllocation,int256 userNetFlow,uint256 nodeAllocation,int256 nodeNetFlow) nonHomeLedger,bytes userSig,bytes nodeSig)";
+const DEF_T = "tuple(uint32 challengeDuration,address user,address node,uint64 nonce,uint256 approvedSignatureValidators,bytes32 metadata)";
+const HUB_ABI = [`function createChannel(${DEF_T} def, ${STATE_T} initState) payable`, `function closeChannel(bytes32 channelId, ${STATE_T} candidate)`,
+  `function getChannelData(bytes32) view returns (uint8 status, ${DEF_T} def, ${STATE_T} lastState, uint256 challengeExpiry, uint256 lockedFunds)`];
+const CS_ABI = [`function fileCase(bytes32 channelId, ${STATE_T} anchor, ${STATE_T} settlement, string terms) returns (uint256)`,
+  "function caseCount() view returns (uint256)", "function rule(uint256 caseId, bool sign, bytes32 reason)",
+  "function validateSignature(bytes32 channelId, bytes signingData, bytes signature, address participant) view returns (uint256)",
+  "function getCase(uint256) view returns (tuple(bytes32 channelId,bytes32 stateHash,bytes32 termsHash,address proposer,address respondent,address token,uint64 anchorVersion,uint64 version,uint8 decimals,uint8 intent,uint8 verdict,uint64 filedAt,uint256 anchorUserShare,uint256 proposedUserShare,uint256 total,bytes32 reason))",
+  "event CaseFiled(uint256 indexed caseId, bytes32 indexed channelId, address proposer, address respondent, bytes32 stateHash)"];
+const USD_ABI = ["function approve(address,uint256) returns (bool)", "function balanceOf(address) view returns (uint256)", "function allowance(address,address) view returns (uint256)"];
+const VERDICT = ["NONE", "FILED", "SIGNED", "REFUSED"];
+
+const chain = new ChainProvider();
+const hub = new Contract(DEP.hub, HUB_ABI, chain), cs = new Contract(DEP.countersign, CS_ABI, chain), usd = new Contract(DEP.token, USD_ABI, chain);
+const errs = new Interface(ERRORS);
+const reader = createClient({ chain: testnetBradbury, endpoint: RPC });
+let account = null, eip1193 = null;
+const realFetch = window.fetch.bind(window);
+// The SDK quotes fees with an eth_call that has a gas price and no sender, which the node refuses from the zero address.
+window.fetch = async (input, init) => {
+  if (account && init && typeof init.body === "string" && init.body.includes('"eth_call"')) {
+    const body = JSON.parse(init.body);
+    for (const req of Array.isArray(body) ? body : [body]) if (req.method === "eth_call" && req.params?.[0] && !req.params[0].from) req.params[0].from = account;
+    return realFetch(input, { ...init, body: JSON.stringify(body) });
+  }
+  return realFetch(input, init);
+};
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const short = (a, n = 6) => (a ? `${String(a).slice(0, n)}...${String(a).slice(-4)}` : "");
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const tusd = (v) => formatUnits(v, 6).replace(/\.0$/, "");
+const glLink = (h, t) => `<a href="${EXPLORER}/tx/${h}" target="_blank" rel="noopener">${t || short(h)}</a>`;
+const chLink = (h, t) => `<a href="${CHAIN_EXPLORER}/tx/${h}" target="_blank" rel="noopener">${t || short(h)}</a>`;
+const store = { get: (k) => { try { return JSON.parse(localStorage.getItem("countersign." + k)); } catch { return null; } },
+  set: (k, v) => { try { localStorage.setItem("countersign." + k, JSON.stringify(pack(v))); } catch {} }, del: (k) => { try { localStorage.removeItem("countersign." + k); } catch {} } };
+function say(html, tone = "") { const s = $("status"); s.innerHTML = html; s.className = "status " + tone; }
+function reasonOf(e) {
+  const seen = new Set(), texts = [];
+  (function walk(x, d) { if (x == null || d > 5) return; if (typeof x === "string") { texts.push(x); return; } if (typeof x !== "object" || seen.has(x)) return; seen.add(x);
+    for (const k of Object.getOwnPropertyNames(x)) { try { walk(x[k], d + 1); } catch {} } })(e, 0);
+  for (const t of texts) { const m = t.match(/0x[0-9a-fA-F]{8,}/g); if (m) for (const d of m) { try { const p = errs.parseError(d); if (p) return p.name; } catch {} } }
+  if (e?.code === "ACTION_REJECTED" || e?.code === 4001) return "Rejected in the wallet.";
+  if (texts.some((t) => /-32017|Rate Limit/i.test(t))) return "The public RPC is rate limiting this browser; try again in a few seconds.";
+  return (e?.shortMessage || e?.message || String(e)).slice(0, 200);
+}
+async function nodeCall(op, body) {
+  const r = await fetch(`${NODE_API}?op=${op}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(pack(body || {})) });
+  const j = await r.json().catch(() => ({ error: "the node did not answer" }));
+  return { ok: r.ok, ...j };
+}
+
+// ------------------------------------------------------------------ wallet
+async function ensureWallet() {
+  eip1193 = window.ethereum;
+  if (!eip1193) throw new Error("No wallet found. Reading needs none; to open a channel, use a browser with MetaMask.");
+  if (!account) { const a = await eip1193.request({ method: "eth_requestAccounts" }); account = a && a[0]; $("connect").textContent = short(account); }
+  const cur = await eip1193.request({ method: "eth_chainId" });
+  if (String(cur).toLowerCase() !== CHAIN_ID_HEX) {
+    try { await eip1193.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_ID_HEX }] }); }
+    catch (err) { if (err && (err.code === 4902 || err.code === -32603)) await eip1193.request({ method: "wallet_addEthereumChain", params: [CHAIN_PARAMS] }); else throw err; }
+  }
+  return await new BrowserProvider(eip1193).getSigner();
+}
+async function balance() { if (account) $("bal").textContent = tusd(await usd.balanceOf(account)) + " tUSD"; }
+$("connect").onclick = async () => { try { await ensureWallet(); say("Connected " + short(account) + " on GenLayer Bradbury.", "good"); balance(); draw(); } catch (e) { say(reasonOf(e), "bad"); } };
+
+// ------------------------------------------------------------------ the channel
+const my = () => store.get("channel." + (account || "").toLowerCase());
+const keep = (c) => store.set("channel." + account.toLowerCase(), c);
+function stage() {
+  const c = account && my();
+  if (!c) return 1;
+  if (c.closed) return 6;
+  if (c.verdict === "SIGNED" || c.verdict === "REFUSED") return 5;
+  if (c.caseId != null) return 4;
+  if (c.claim) return 3;
+  if (c.opened) return 2;
+  return 1;
+}
+function draw() {
+  const s = stage();
+  document.querySelectorAll(".step").forEach((el) => { const i = Number(el.dataset.i); el.className = "step" + (i < s && i > 0 ? " done" : i === s || i === 0 ? " on" : ""); });
+  const c = account && my();
+  $("b-open").disabled = !account || s !== 1;
+  $("b-claim").disabled = s !== 2 && !(s === 5 && c?.verdict === "REFUSED");
+  $("b-file").disabled = s !== 3; $("b-ask").disabled = s !== 4; $("b-close").disabled = s !== 5;
+  $("b-close").textContent = c?.verdict === "REFUSED" ? "Try to close" : "Close";
+  const rows = [];
+  if (c) {
+    rows.push(["bet", esc(BETS[c.bet].title)], ["channel", `<span title="${c.cid}">${short(c.cid, 10)}</span>`]);
+    if (c.openTx) rows.push(["opened", chLink(c.openTx, "10 tUSD in, node signed the opening")]);
+    if (c.claim) rows.push(["your claim", `CLOSE: ${c.claim} tUSD to you, ${10 - Number(c.claim)} to the node`]);
+    if (c.nodeSaid) rows.push(["the node", esc(c.nodeSaid)]);
+    if (c.caseId != null) rows.push(["case", `#${c.caseId} ${c.fileTx ? chLink(c.fileTx, "filed") : ""}`]);
+    if (c.round) rows.push(["the court", glLink(c.round, "round")]);
+    if (c.verdict) rows.push(["verdict", `<span class="stamp ${c.verdict}">${c.verdict}</span>`]);
+    if (c.why) rows.push(["why", esc(c.why)]);
+    if (c.closeTx) rows.push(["closed", chLink(c.closeTx, `paid ${c.claim} tUSD to you, no node signature`)]);
+  }
+  $("doc").innerHTML = rows.length ? rows.map(([k, v]) => `<div class="row"><span>${k}</span><span>${v}</span></div>`).join("") : `<div class="row"><span>channel</span><span>none yet</span></div>`;
+}
+
+$("b-faucet").onclick = async () => {
+  try {
+    await ensureWallet();
+    say("Asking the node's faucet ...", "busy");
+    const r = await nodeCall("faucet", { user: account });
+    if (!r.ok) { say("The faucet said: " + esc(r.error), "bad"); return; }
+    say(`10 tUSD sent. ${chLink(r.tx, "transaction")}`, "good"); balance();
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+
+$("b-open").onclick = async () => {
+  try {
+    const s = await ensureWallet();
+    const bet = document.querySelector('input[name="bet"]:checked').value;
+    if ((await usd.balanceOf(account)) < DEPOSIT) { say("You need 10 tUSD: use step 1 first.", "bad"); return; }
+    if ((await usd.allowance(account, DEP.hub)) < DEPOSIT) {
+      say("Approve Yellow's hub to take your deposit, in MetaMask ...", "busy");
+      await (await new Contract(DEP.token, USD_ABI, s).approve(DEP.hub, MaxUint256)).wait();
+    }
+    const def = definition({ user: account, node: DEP.node, nonce: Date.now(), validatorId: DEP.validator_id });
+    const a = anchor(DEP.token, bet), cid = channelId(def);
+    say("Sign the first state in MetaMask: your 10 tUSD in, and the hash of the bet's terms. No gas.", "busy");
+    a.userSig = withValidatorByte(await s.signMessage(signedMessage(cid, a)));
+    say("Asking the node to sign the opening ...", "busy");
+    const r = await nodeCall("open", { def, anchor: a, bet });
+    if (!r.ok) { say("The node would not open: " + esc(r.error), "bad"); return; }
+    a.nodeSig = r.nodeSig;
+    say("Open the channel on Yellow's hub in MetaMask ...", "busy");
+    const tx = await new Contract(DEP.hub, HUB_ABI, s).createChannel(def, asTuple(a));
+    await tx.wait();
+    keep({ bet, def, anchor: a, cid, terms: r.terms, opened: true, openTx: tx.hash });
+    say(`Channel open with 10 tUSD. ${chLink(tx.hash, "transaction")}. Now claim your share.`, "good"); balance(); draw();
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+
+$("b-claim").onclick = async () => {
+  try {
+    const s = await ensureWallet();
+    const c = my(), share = document.querySelector('input[name="claim"]:checked').value;
+    const st = closeFor(DEP.token, c.bet, share);
+    say(`Sign your CLOSE in MetaMask: ${share} tUSD to you, ${10 - Number(share)} to the node. No gas.`, "busy");
+    st.userSig = withValidatorByte(await s.signMessage(signedMessage(c.cid, st)));
+    say("Asking the node to countersign ...", "busy");
+    const r = await nodeCall("settle", { channelId: c.cid, state: st });
+    Object.assign(c, { claim: share, close: st, nodeSaid: r.ok ? "signed" : r.error, caseId: null, round: null, verdict: null, why: null });
+    keep(c); draw();
+    say(`The node: "${esc(c.nodeSaid)}" File the case on Countersign.`, "bad");
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+
+$("b-file").onclick = async () => {
+  try {
+    const s = await ensureWallet();
+    const c = my();
+    say("File the case on Countersign in MetaMask ...", "busy");
+    const tx = await new Contract(DEP.countersign, CS_ABI, s).fileCase(c.cid, asTuple(unpackState(c.anchor)), asTuple(unpackState(c.close)), c.terms);
+    const rc = await tx.wait();
+    const ev = rc.logs.map((l) => { try { return cs.interface.parseLog(l); } catch { return null; } }).find((x) => x?.name === "CaseFiled");
+    c.caseId = Number(ev.args.caseId); c.fileTx = tx.hash; keep(c); draw();
+    say(`Case #${c.caseId} filed. ${chLink(tx.hash, "transaction")}. Ask Internet Court.`, "good"); loadRecord();
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+
+$("b-ask").onclick = async () => {
+  try {
+    await ensureWallet();
+    const c = my();
+    const gl = createClient({ chain: testnetBradbury, endpoint: RPC, account, provider: eip1193 });
+    const gasLimit = 300000n, maxGasPrice = 1000000000n, budget = gasLimit * maxGasPrice;
+    const feeParams = AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [gasLimit, maxGasPrice]);
+    // The verdict reaches Countersign as a message when it is final; this budget pays for it.
+    const messageAllocations = [{ messageType: 0, onAcceptance: false, recipient: DEP.countersign, budget, feeParams }];
+    const quote = await gl.estimateTransactionFees({ totalMessageFees: budget, messageAllocations });
+    say("Approve the request to Internet Court in MetaMask ...", "busy");
+    const hash = await gl.writeContract({ address: DEP.court, functionName: "rule", args: [c.caseId], value: 0n, fees: { distribution: quote.distribution, feeValue: quote.feeValue, messageAllocations } });
+    c.round = hash; keep(c); draw();
+    await follow(c);
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+async function follow(c) {
+  for (let i = 0; i < 400; i++) {
+    let tx = null; try { tx = await reader.getTransaction({ hash: c.round }); } catch {}
+    const name = String(tx?.statusName || "");
+    if (name === "FINALIZED") {
+      for (let k = 0; k < 40; k++) { if (Number((await cs.getCase(c.caseId)).verdict) > 1) break; say(`Final. Waiting for the court's own call to reach Countersign ... ${glLink(c.round, "round")}`, "busy"); await sleep(5000); }
+      const v = VERDICT[Number((await cs.getCase(c.caseId)).verdict)];
+      const k = JSON.parse(await reader.readContract({ address: DEP.court, functionName: "case", args: [c.caseId] }));
+      Object.assign(c, { verdict: v, why: k.why || "" }); keep(c); draw(); loadRecord();
+      say(v === "SIGNED" ? `The court countersigned: ${esc(k.why)} Close the channel.` : v === "REFUSED" ? `The court refused: ${esc(k.why)}` : `The round finished and changed nothing; ask again. ${glLink(c.round, "round")}`, v === "SIGNED" ? "good" : "bad");
+      return;
+    }
+    if (["UNDETERMINED", "CANCELED", "LEADER_TIMEOUT", "VALIDATORS_TIMEOUT"].includes(name)) { say(`The round ended ${name} and changed nothing. Ask again. ${glLink(c.round, "round")}`, "bad"); c.round = null; keep(c); draw(); return; }
+    say(name === "ACCEPTED" ? `Accepted by the validators. The court acts only once its verdict is final ... ${glLink(c.round, "round")}` : `Validators are reading the source ... ${(i + 1) * 6}s, ${name || "waiting for the network"}. ${glLink(c.round, "round")}`, "busy");
+    await sleep(6000);
+  }
+}
+
+$("b-close").onclick = async () => {
+  try {
+    const s = await ensureWallet();
+    const c = my();
+    const st = { ...unpackState(c.close), nodeSig: countersigned(DEP.validator_id, c.caseId) };
+    const h = new Contract(DEP.hub, HUB_ABI, s);
+    if (c.verdict === "REFUSED") {
+      try { await h.closeChannel.staticCall(c.cid, asTuple(st)); say("Unexpected: the hub would accept it.", "bad"); }
+      catch (e) { say(`Yellow's hub rejects it: ${esc(reasonOf(e))}. A refused case signs nothing. Claim the other answer and file again.`, "bad"); }
+      return;
+    }
+    say("Close the channel on Yellow's hub in MetaMask. The case id stands in for the node's signature ...", "busy");
+    const tx = await h.closeChannel(c.cid, asTuple(st));
+    await tx.wait();
+    c.closed = true; c.closeTx = tx.hash; keep(c); draw(); balance();
+    say(`Closed with no node signature: ${c.claim} tUSD back in your wallet. ${chLink(tx.hash, "transaction")}`, "good");
+  } catch (e) { say(reasonOf(e), "bad"); }
+};
+$("b-reset").onclick = () => { if (account) { store.del("channel." + account.toLowerCase()); draw(); say("Ready for a new channel.", ""); } };
+
+// ------------------------------------------------------------------ the record
+async function loadRecord() {
+  const n = Number(await cs.caseCount());
+  const ids = []; for (let i = n - 1; i >= 0 && ids.length < 30; i--) ids.push(i);
+  let signed = 0, refused = 0;
+  const rows = [];
+  // A few cases at a time: each court read is a GenLayer call of a few seconds.
+  const got = new Array(ids.length);
+  let next = 0;
+  await Promise.all([...Array(Math.min(5, ids.length))].map(async () => {
+    while (next < ids.length) {
+      const i = next++, id = ids[i];
+      got[i] = await Promise.all([reader.readContract({ address: DEP.court, functionName: "case", args: [id] }).then(JSON.parse).catch(() => ({})), cs.getCase(id)]);
+    }
+  }));
+  for (const [i, id] of ids.entries()) {
+    const [k, onChain] = got[i];
+    const v = VERDICT[Number(onChain.verdict)];
+    if (v === "SIGNED") signed++; if (v === "REFUSED") refused++;
+    const intent = Number(onChain.intent) === 1 ? "CLOSE" : "OPERATE";
+    rows.push(`<div class="r"><span class="mono">#${id}</span><span>${intent} by the ${onChain.proposer.toLowerCase() === DEP.node.toLowerCase() ? "node" : "user"}<br/><span class="mono" style="font-size:11px;color:var(--dim)">${short(onChain.channelId, 10)}</span></span><span class="why">${esc(k.why || (v === "FILED" ? "waiting for the court" : ""))}</span><span class="mono">${tusd(onChain.proposedUserShare)} of ${tusd(onChain.total)}</span><span><span class="stamp ${v}">${v}</span></span></div>`);
+  }
+  $("s-cases").textContent = n; $("s-signed").textContent = signed + (n > 30 ? "+" : ""); $("s-refused").textContent = refused + (n > 30 ? "+" : "");
+  $("rec").innerHTML = `<div class="r h"><span>Case</span><span>Claim</span><span>What the court found</span><span>User share</span><span>Verdict</span></div>` + rows.join("");
+}
+
+// ------------------------------------------------------------------ try to break it
+const P = PROOF.attack, stranger = Wallet.createRandom().address;
+const ATTACKS = [
+  { t: "Rule a case yourself", d: "A stranger calls Countersign's rule() to sign a filed case without the court.",
+    run: () => cs.rule.staticCall(P.F_10.caseId, true, "0x" + "11".repeat(32), { from: stranger }), want: "revert" },
+  { t: "Use a refused case", d: `Case #${P.F_10.caseId} was REFUSED. Offered as the node's signature for the very state it was filed for, it signs nothing.`,
+    run: () => cs.validateSignature(P.F.cid, signingData(unpackState(P.F_10.state)), AbiCoder.defaultAbiCoder().encode(["uint256"], [P.F_10.caseId]), DEP.node), want: "zero" },
+  { t: "Reuse a signed case on another state", d: `Case #${P.F_2.caseId} was SIGNED for a 2 tUSD close. Offered for the 10 tUSD close of the same channel, it signs nothing.`,
+    run: () => cs.validateSignature(P.F.cid, signingData(unpackState(P.F_10.state)), AbiCoder.defaultAbiCoder().encode(["uint256"], [P.F_2.caseId]), DEP.node), want: "zero" },
+  { t: "Carry a signed case to another channel", d: `The same SIGNED case, for the same state, in channel E instead of F.`,
+    run: () => cs.validateSignature(P.E.cid, signingData(unpackState(P.F_2.state)), AbiCoder.defaultAbiCoder().encode(["uint256"], [P.F_2.caseId]), DEP.node), want: "zero" },
+  { t: "Sign for the side that proposed", d: "The SIGNED case stands in for the silent node only. Offered as the user's own signature, it signs nothing.",
+    run: () => cs.validateSignature(P.F.cid, signingData(unpackState(P.F_2.state)), AbiCoder.defaultAbiCoder().encode(["uint256"], [P.F_2.caseId]), P.reviewer), want: "zero" },
+  { t: "Point at a case that does not exist", d: "A countersignature naming case 999999.",
+    run: () => cs.validateSignature(P.F.cid, signingData(unpackState(P.F_2.state)), AbiCoder.defaultAbiCoder().encode(["uint256"], [999999]), DEP.node), want: "zero" },
+];
+$("atks").innerHTML = ATTACKS.map((a, i) => `<div class="atk"><b>${esc(a.t)}</b><p>${esc(a.d)}</p><button class="btn small ghost" data-atk="${i}">Try it</button><span class="out" id="atk-${i}"></span></div>`).join("");
+document.querySelectorAll("[data-atk]").forEach((b) => (b.onclick = async () => {
+  const a = ATTACKS[Number(b.dataset.atk)], out = $("atk-" + b.dataset.atk);
+  out.className = "out"; out.textContent = "calling GenLayer Chain ...";
+  try {
+    const r = await a.run();
+    if (a.want === "zero") { const ok = BigInt(r) !== 1n; out.className = "out " + (ok ? "good" : "bad"); out.textContent = ok ? "refused: validateSignature says not valid" : "it would sign"; }
+    else { out.className = "out bad"; out.textContent = "it went through"; }
+  } catch (e) { out.className = "out good"; out.textContent = "refused: " + reasonOf(e); }
+}));
+
+// ------------------------------------------------------------------ proof and addresses
+const all = PROOF.checks;
+$("s-proof").textContent = `${all.filter((c) => c.ok).length}/${all.length}`;
+$("proof-title").textContent = `${all.filter((c) => c.ok).length} of ${all.length} checks passed on chain.`;
+$("proof-list").innerHTML = all.map((c) => `<div><i class="${c.ok ? "" : "no"}">${c.ok ? "PASS" : "FAIL"}</i><span>${esc(c.label)}${c.detail ? `<br/><small>${esc(String(c.detail).slice(0, 160))}</small>` : ""}</span></div>`).join("");
+const addr = (a, gl) => `<a class="mono" href="${gl ? EXPLORER : CHAIN_EXPLORER}/address/${a}" target="_blank" rel="noopener">${a}</a>`;
+$("addr").innerHTML = [
+  ["Internet Court (the court)", addr(DEP.court, true), "Intelligent Contract on GenLayer Bradbury: reads the terms and the source, rules SIGNED or REFUSED, and tells Countersign itself"],
+  ["Countersign", addr(DEP.countersign), `the Nitrolite signature validator (id ${DEP.validator_id}), on GenLayer Chain`],
+  ["ChannelHub", addr(DEP.hub), "Yellow's Nitrolite hub, unmodified, byte-identical to Yellow's Base Sepolia deployment"],
+  ["The demo node", addr(DEP.node), "signs channel openings, then goes silent"],
+  ["Test USD", addr(DEP.token), "the channel token; the node's faucet hands out 10 at a time"],
+].map((r) => `<tr><td>${r[0]}</td><td>${r[1]}<br/><small>${r[2]}</small></td></tr>`).join("");
+
+if (window.ethereum) window.ethereum.request({ method: "eth_accounts" }).then((a) => { if (a && a[0]) { account = a[0]; $("connect").textContent = short(account); balance(); draw(); const c = my(); if (c?.round && !c.verdict) follow(c); } }).catch(() => {});
+draw();
+loadRecord().catch((e) => console.warn("record", e));
+</script>
+</body>
+</html>

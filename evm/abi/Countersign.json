@@ -1,0 +1,783 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "contract IChannelHub",
+        "name": "hub",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "caseId",
+        "type": "uint256"
+      }
+    ],
+    "name": "AlreadyFiled",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyRuled",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadySignedByBoth",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AnchorNotSigned",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ChannelNotOpen",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CourtAlreadySet",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EmptyChannelId",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectSettlement",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidSignerAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoProposerSignature",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoSuchCase",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "OnlyCourt",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "OnlyDeployer",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SharesDoNotAddUp",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TermsMismatch",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TermsTooLong",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "proposer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "respondent",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "stateHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "CaseFiled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "signed",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "reason",
+        "type": "bytes32"
+      }
+    ],
+    "name": "CaseRuled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "court",
+        "type": "address"
+      }
+    ],
+    "name": "CourtSet",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "DEPLOYER",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "HUB",
+    "outputs": [
+      {
+        "internalType": "contract IChannelHub",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_TERMS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "caseCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "court",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "caseId",
+        "type": "uint256"
+      }
+    ],
+    "name": "facts",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "anchor",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "settlement",
+        "type": "tuple"
+      },
+      {
+        "internalType": "string",
+        "name": "terms",
+        "type": "string"
+      }
+    ],
+    "name": "fileCase",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "caseId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "caseId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getCase",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "channelId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "stateHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "termsHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "proposer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "respondent",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "anchorVersion",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "decimals",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum Countersign.Verdict",
+            "name": "verdict",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint64",
+            "name": "filedAt",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "anchorUserShare",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "proposedUserShare",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "total",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "reason",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct Countersign.Case",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "sign",
+        "type": "bool"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "reason",
+        "type": "bytes32"
+      }
+    ],
+    "name": "rule",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "court_",
+        "type": "address"
+      }
+    ],
+    "name": "setCourt",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "caseId",
+        "type": "uint256"
+      }
+    ],
+    "name": "termsOf",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "validateChallengeSignature",
+    "outputs": [
+      {
+        "internalType": "ValidationResult",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signingData",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      },
+      {
+        "internalType": "address",
+        "name": "participant",
+        "type": "address"
+      }
+    ],
+    "name": "validateSignature",
+    "outputs": [
+      {
+        "internalType": "ValidationResult",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

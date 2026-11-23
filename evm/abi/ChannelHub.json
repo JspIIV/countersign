@@ -1,0 +1,5679 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISignatureValidator",
+        "name": "_defaultSigValidator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_node",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "collision",
+        "type": "address"
+      }
+    ],
+    "name": "AddressCollision",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ChallengerVersionTooLow",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ECDSAInvalidSignature",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "length",
+        "type": "uint256"
+      }
+    ],
+    "name": "ECDSAInvalidSignatureLength",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "s",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ECDSAInvalidSignatureS",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EmptySignature",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectChallengeDuration",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectChannelId",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectChannelStatus",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectMsgSender",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectNode",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectSignature",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectStateIntent",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectValue",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidValidatorId",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "NativeTransferFailed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoChannelIdFoundForEscrow",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "value",
+        "type": "int256"
+      }
+    ],
+    "name": "SafeCastOverflowedIntToUint",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SafeERC20FailedOperation",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "validatorId",
+        "type": "uint8"
+      }
+    ],
+    "name": "ValidatorAlreadyRegistered",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "validatorId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint64",
+        "name": "activatesAt",
+        "type": "uint64"
+      }
+    ],
+    "name": "ValidatorNotActive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ValidatorNotApproved",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "validatorId",
+        "type": "uint8"
+      }
+    ],
+    "name": "ValidatorNotRegistered",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "challengeExpireAt",
+        "type": "uint64"
+      }
+    ],
+    "name": "ChannelChallenged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "ChannelCheckpointed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "finalState",
+        "type": "tuple"
+      }
+    ],
+    "name": "ChannelClosed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "challengeDuration",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "node",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "nonce",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "approvedSignatureValidators",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct ChannelDefinition",
+        "name": "definition",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "initialState",
+        "type": "tuple"
+      }
+    ],
+    "name": "ChannelCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "ChannelDeposited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "ChannelWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Deposited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "challengeExpireAt",
+        "type": "uint64"
+      }
+    ],
+    "name": "EscrowDepositChallenged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "EscrowDepositFinalized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "EscrowDepositFinalizedOnHome",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "EscrowDepositInitiated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "EscrowDepositInitiatedOnHome",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32[]",
+        "name": "escrowIds",
+        "type": "bytes32[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "purgedCount",
+        "type": "uint256"
+      }
+    ],
+    "name": "EscrowDepositsPurged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "challengeExpireAt",
+        "type": "uint64"
+      }
+    ],
+    "name": "EscrowWithdrawalChallenged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "EscrowWithdrawalFinalized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "EscrowWithdrawalFinalizedOnHome",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "EscrowWithdrawalInitiated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "EscrowWithdrawalInitiatedOnHome",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "destination",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "FundsClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "MigrationInFinalized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "MigrationInInitiated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "MigrationOutFinalized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct State",
+        "name": "state",
+        "type": "tuple"
+      }
+    ],
+    "name": "MigrationOutInitiated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "NodeBalanceUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TransferFailed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint8",
+        "name": "validatorId",
+        "type": "uint8"
+      },
+      {
+        "indexed": true,
+        "internalType": "contract ISignatureValidator",
+        "name": "validator",
+        "type": "address"
+      }
+    ],
+    "name": "ValidatorRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Withdrawn",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "DEFAULT_SIG_VALIDATOR",
+    "outputs": [
+      {
+        "internalType": "contract ISignatureValidator",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ESCROW_DEPOSIT_UNLOCK_DELAY",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_CHALLENGE_DURATION",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_DEPOSIT_ESCROW_STEPS",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MIN_CHALLENGE_DURATION",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "NODE",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "TRANSFER_GAS_LIMIT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "VALIDATOR_ACTIVATION_DELAY",
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "VERSION",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bytes",
+        "name": "challengerSig",
+        "type": "bytes"
+      },
+      {
+        "internalType": "enum ParticipantIndex",
+        "name": "challengerIdx",
+        "type": "uint8"
+      }
+    ],
+    "name": "challengeChannel",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "challengerSig",
+        "type": "bytes"
+      },
+      {
+        "internalType": "enum ParticipantIndex",
+        "name": "challengerIdx",
+        "type": "uint8"
+      }
+    ],
+    "name": "challengeEscrowDeposit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "challengerSig",
+        "type": "bytes"
+      },
+      {
+        "internalType": "enum ParticipantIndex",
+        "name": "challengerIdx",
+        "type": "uint8"
+      }
+    ],
+    "name": "challengeEscrowWithdrawal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "checkpointChannel",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "destination",
+        "type": "address"
+      }
+    ],
+    "name": "claimFunds",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "closeChannel",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "challengeDuration",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "node",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "nonce",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "approvedSignatureValidators",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct ChannelDefinition",
+        "name": "def",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "initState",
+        "type": "tuple"
+      }
+    ],
+    "name": "createChannel",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "depositToChannel",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "depositToNode",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "escrowHead",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "finalizeEscrowDeposit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "finalizeEscrowWithdrawal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "finalizeMigration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getChannelData",
+    "outputs": [
+      {
+        "internalType": "enum ChannelStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "challengeDuration",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "node",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "nonce",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "approvedSignatureValidators",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct ChannelDefinition",
+        "name": "definition",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "lastState",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "challengeExpiry",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lockedFunds",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getChannelIds",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getEscrowDepositData",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "enum EscrowStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint64",
+        "name": "unlockAt",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint64",
+        "name": "challengeExpiry",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lockedAmount",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "initState",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "page",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageSize",
+        "type": "uint256"
+      }
+    ],
+    "name": "getEscrowDepositIds",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "ids",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "escrowId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getEscrowWithdrawalData",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "enum EscrowStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint64",
+        "name": "challengeExpiry",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lockedAmount",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "initState",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "getNodeBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "validatorId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getNodeValidator",
+    "outputs": [
+      {
+        "internalType": "contract ISignatureValidator",
+        "name": "validator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint64",
+        "name": "registeredAt",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getOpenChannels",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "openChannels",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "getReclaimBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getUnlockableEscrowDepositStats",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "count",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "challengeDuration",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "node",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "nonce",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "approvedSignatureValidators",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct ChannelDefinition",
+        "name": "def",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "initiateEscrowDeposit",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "challengeDuration",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "node",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "nonce",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "approvedSignatureValidators",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct ChannelDefinition",
+        "name": "def",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "initiateEscrowWithdrawal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "challengeDuration",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "node",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "nonce",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "approvedSignatureValidators",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct ChannelDefinition",
+        "name": "def",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "initiateMigration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "maxSteps",
+        "type": "uint256"
+      }
+    ],
+    "name": "purgeEscrowDeposits",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "validatorId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "contract ISignatureValidator",
+        "name": "validator",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      }
+    ],
+    "name": "registerNodeValidator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "channelId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "withdrawFromChannel",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawFromNode",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

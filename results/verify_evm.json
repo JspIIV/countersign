@@ -1,0 +1,58 @@
+[
+  {
+    "chain": "Base Sepolia (Yellow)",
+    "name": "ChannelHub",
+    "address": "0x5dba8515af063db0c243c15ece7b99f91459c7c3",
+    "ok": true,
+    "bytes": 23945,
+    "filled": 26
+  },
+  {
+    "chain": "GenLayer Chain",
+    "name": "ChannelHub",
+    "address": "0x6999925Cc2F8a17A0D28c43840eE03044412EE87",
+    "ok": true,
+    "bytes": 23945,
+    "filled": 26
+  },
+  {
+    "chain": "GenLayer Chain",
+    "name": "ChannelEngine",
+    "address": "0x7fb6b87EAd0DA4CC454aCF01c11178F3D98C51da",
+    "ok": true,
+    "bytes": 6275,
+    "filled": 0
+  },
+  {
+    "chain": "GenLayer Chain",
+    "name": "EscrowDepositEngine",
+    "address": "0x0b430964763D5a63008A7751cd1E74fBf366787A",
+    "ok": true,
+    "bytes": 4050,
+    "filled": 0
+  },
+  {
+    "chain": "GenLayer Chain",
+    "name": "EscrowWithdrawalEngine",
+    "address": "0x1316a73fe3eEF194ACFfB78cA2D478C3cCd056d2",
+    "ok": true,
+    "bytes": 4209,
+    "filled": 0
+  },
+  {
+    "chain": "GenLayer Chain",
+    "name": "ECDSAValidator",
+    "address": "0x767bfbF98aEA9B4dba06cbe857aA4681F409b613",
+    "ok": true,
+    "bytes": 2216,
+    "filled": 0
+  },
+  {
+    "chain": "GenLayer Chain",
+    "name": "Countersign",
+    "address": "0x292352BC86661249b1851E4A25BFfeE25bC5D8C2",
+    "ok": true,
+    "bytes": 9573,
+    "filled": 7
+  }
+]

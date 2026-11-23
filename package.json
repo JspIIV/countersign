@@ -1,0 +1,11 @@
+{
+  "name": "countersign",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Countersign: Internet Court as a Yellow Nitrolite signature validator. When one side of a state channel refuses to sign the settlement both agreed terms give, a GenLayer court rules from the cited sources and its countersignature stands in for the refusing party on Yellow's own ChannelHub",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/JspIIV/countersign.git" },
+  "scripts": { "test": "python tests/countersign_rules.py" },
+  "dependencies": { "ethers": "^6.17.0", "genlayer-js": "2.0.0-rc.2", "solc": "^0.8.36" }
+}

@@ -1,0 +1,464 @@
+[
+  {
+    "inputs": [],
+    "name": "AllocationExceedsLockedFunds",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ChallengeExpired",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DecimalsExceedMaxPrecision",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DecimalsExceedMaxPrecision",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DecimalsMismatch",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FailedToFetchDecimals",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectAllocationSum",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectChannelStatus",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectHomeChainId",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectNodeAllocation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectNodeNetFlow",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectNodeNetFlowDelta",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectNonHomeChainId",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectPreviousStateIntent",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectStateIntent",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectStateVersion",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectUserAllocation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectUserNetFlow",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectUserNetFlowDelta",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientLockedFunds",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientNodeBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "LockedFundsConsistencyViolation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NegativeNetFlowSum",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NonHomeStateMustBeEmpty",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NonHomeStateRequired",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "value",
+        "type": "int256"
+      }
+    ],
+    "name": "SafeCastOverflowedIntToUint",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "SafeCastOverflowedUintToInt",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenMismatch",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UserAllocationDeltaMismatch",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UserNodeAllocationsMismatch",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "enum ChannelStatus",
+            "name": "status",
+            "type": "ChannelStatus"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "version",
+                "type": "uint64"
+              },
+              {
+                "internalType": "enum StateIntent",
+                "name": "intent",
+                "type": "StateIntent"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "metadata",
+                "type": "bytes32"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint64",
+                    "name": "chainId",
+                    "type": "uint64"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "decimals",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "userAllocation",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "int256",
+                    "name": "userNetFlow",
+                    "type": "int256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "nodeAllocation",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "int256",
+                    "name": "nodeNetFlow",
+                    "type": "int256"
+                  }
+                ],
+                "internalType": "struct Ledger",
+                "name": "homeLedger",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint64",
+                    "name": "chainId",
+                    "type": "uint64"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "decimals",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "userAllocation",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "int256",
+                    "name": "userNetFlow",
+                    "type": "int256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "nodeAllocation",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "int256",
+                    "name": "nodeNetFlow",
+                    "type": "int256"
+                  }
+                ],
+                "internalType": "struct Ledger",
+                "name": "nonHomeLedger",
+                "type": "tuple"
+              },
+              {
+                "internalType": "bytes",
+                "name": "userSig",
+                "type": "bytes"
+              },
+              {
+                "internalType": "bytes",
+                "name": "nodeSig",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct State",
+            "name": "prevState",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lockedFunds",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nodeAvailableFunds",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "challengeExpiry",
+            "type": "uint64"
+          }
+        ],
+        "internalType": "struct ChannelEngine.TransitionContext",
+        "name": "ctx",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum StateIntent",
+            "name": "intent",
+            "type": "StateIntent"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "metadata",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "homeLedger",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint64",
+                "name": "chainId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "userAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "userNetFlow",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nodeAllocation",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "nodeNetFlow",
+                "type": "int256"
+              }
+            ],
+            "internalType": "struct Ledger",
+            "name": "nonHomeLedger",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "userSig",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "nodeSig",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct State",
+        "name": "candidate",
+        "type": "tuple"
+      }
+    ],
+    "name": "validateTransition",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "int256",
+            "name": "userFundsDelta",
+            "type": "int256"
+          },
+          {
+            "internalType": "int256",
+            "name": "nodeFundsDelta",
+            "type": "int256"
+          },
+          {
+            "internalType": "enum ChannelStatus",
+            "name": "newStatus",
+            "type": "ChannelStatus"
+          },
+          {
+            "internalType": "uint64",
+            "name": "newChallengeExpiry",
+            "type": "uint64"
+          },
+          {
+            "internalType": "bool",
+            "name": "closeChannel",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct ChannelEngine.TransitionEffects",
+        "name": "effects",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

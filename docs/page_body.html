@@ -1,0 +1,112 @@
+<body>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="none" stroke="#fcd535" stroke-width="2.4"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="#fcd535" stroke-width="1.2" stroke-dasharray="2 2"/><path d="M11 17.5 L14.5 21 L21.5 11.5" fill="none" stroke="#f3f1ea" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Countersign
+    </a>
+    <nav class="nav"><a href="#how">How it works</a><a href="#try">Try it</a><a href="#record">The record</a><a href="#break">Try to break it</a><a href="#proof">Proof</a><a href="#contracts">Contracts</a></nav>
+    <div class="right"><span class="pill" id="bal">GenLayer Bradbury</span><button class="btn small" id="connect">Connect wallet</button></div>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="kicker">Yellow Nitrolite &middot; Internet Court &middot; GenLayer</div>
+    <h1>When the other side<br/>won't sign, <em>the court does.</em></h1>
+    <p class="lede">A Yellow state channel moves money only on states both sides signed. If the node goes silent after the session,
+      the user's settlement is stuck at the last state both signed. Countersign is a Nitrolite signature validator: Internet Court reads
+      the terms both committed to, checks the cited source, and when the terms require the settlement, its countersignature stands in
+      for the silent side on Yellow's own ChannelHub.</p>
+    <div class="cta"><a class="btn" href="#try">Open a channel</a><a class="btn ghost" href="#record">Read the record</a><a class="btn ghost" href="https://github.com/JspIIV/countersign" target="_blank" rel="noopener">Code</a></div>
+    <div class="desk">
+      <div><b>THE GAP</b><p>Yellow's own Internet Court skill notes it: a Nitrolite session "has no dispute mechanism, challenge, or timeout of its own". A refusal freezes the money.</p></div>
+      <div><b>THE HOOK</b><p>Nitrolite lets a channel approve extra signature validators. A channel that approves Countersign accepts the court's signature for the side that refuses.</p></div>
+      <div><b>THE LIMIT</b><p>The court signs only the exact state the terms require, only in that channel, only for the silent side. Everything else it refuses, often in code before any judge reads a word.</p></div>
+    </div>
+    <div class="stats">
+      <div><b id="s-cases">..</b><span>cases filed</span></div>
+      <div><b id="s-signed">..</b><span>countersigned</span></div>
+      <div><b id="s-refused">..</b><span>refused</span></div>
+      <div><b id="s-proof">..</b><span>checks proven</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="how">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">How it works</div><h2>Five steps, one of them a <em>court.</em></h2></div>
+      <p>Everything except the judgement happens on Yellow's ChannelHub, byte-identical to Yellow's own Base Sepolia hub. The court only answers one question: which answer does the source show.</p></div>
+    <div class="flow">
+      <div class="st"><div class="n">01</div><b>Commit</b><p>The first state, signed by both, carries the hash of the terms: a question, a source, a user share per answer.</p><small>createChannel</small></div>
+      <div class="st"><div class="n">02</div><b>Silence</b><p>The session ends. One side proposes the settlement; the other never signs it.</p><small>no signature</small></div>
+      <div class="st"><div class="n">03</div><b>File</b><p>Anybody files the anchor, the signed settlement and the terms on Countersign, which checks them against the hub.</p><small>Countersign.fileCase</small></div>
+      <div class="st"><div class="n">04</div><b>Rule</b><p>GenLayer validators read the source and agree on the answer; the shares are compared in code. Final: SIGNED or REFUSED.</p><small>court.rule</small></div>
+      <div class="st"><div class="n">05</div><b>Enforce</b><p>The case id is the countersignature. The hub accepts it for the silent side, and the channel closes or checkpoints.</p><small>closeChannel</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="try">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">Try it</div><h2>Open a channel with a node that <em>goes silent.</em></h2></div>
+      <p>You are the user, with MetaMask on GenLayer Bradbury (you need a little test GEN for gas). The demo node countersigns your channel opening, then refuses every settlement. Claim honestly and get your money back without it; claim falsely and watch the court refuse.</p></div>
+    <div class="play">
+      <div class="panel">
+        <h3>Your channel</h3>
+        <p class="sub">Every step is a real transaction on GenLayer Chain or GenLayer Bradbury.</p>
+        <div class="step" data-i="0"><div class="n">1</div><div><b>Get 10 test dollars</b><span>From the node's faucet, if your wallet holds fewer than 10.</span></div><button class="btn small" id="b-faucet">Get tUSD</button></div>
+        <div class="step" data-i="1"><div class="n">2</div><div><b>Open a channel on a bet</b><span>You deposit 10 tUSD on Yellow's hub; the first state commits to the bet. The node signs the opening.</span>
+          <div class="choice"><input type="radio" name="bet" id="bet-a" value="above8800" checked><label for="bet-a">Everest is above 8,800 m</label><input type="radio" name="bet" id="bet-b" value="below8000"><label for="bet-b">Everest is below 8,000 m</label></div>
+          <span style="display:block;margin-top:6px">Either way: if the answer is Yes, you get 10 back; if No, you get 2 and the node 8.</span></div><button class="btn small" id="b-open" disabled>Open</button></div>
+        <div class="step" data-i="2"><div class="n">3</div><div><b>Claim your share</b><span>You sign a CLOSE and ask the node to countersign it. It will not.</span>
+          <div class="choice"><input type="radio" name="claim" id="cl-yes" value="10" checked><label for="cl-yes">The answer is Yes: 10 to me</label><input type="radio" name="claim" id="cl-no" value="2"><label for="cl-no">The answer is No: 2 to me</label></div></div><button class="btn small" id="b-claim" disabled>Claim</button></div>
+        <div class="step" data-i="3"><div class="n">4</div><div><b>File the case</b><span>Countersign checks your anchor, your signed CLOSE and the terms against the hub.</span></div><button class="btn small" id="b-file" disabled>File</button></div>
+        <div class="step" data-i="4"><div class="n">5</div><div><b>Ask Internet Court</b><span>Validators read the source. A few minutes; the page follows the round until it is final.</span></div><button class="btn small" id="b-ask" disabled>Ask</button></div>
+        <div class="step" data-i="5"><div class="n">6</div><div><b>Close without the node</b><span>SIGNED: the case id stands in for the node's signature and the hub pays you. REFUSED: the hub will not take it; claim again.</span></div><button class="btn small" id="b-close" disabled>Close</button></div>
+        <div class="status" id="status">Connect MetaMask to begin. The page adds GenLayer Bradbury (chain 4221).</div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn small ghost" id="b-reset">Start a new channel</button></div>
+      </div>
+      <div class="panel">
+        <h3>The paperwork</h3>
+        <p class="sub">What the hub and the court hold for your channel, as it happens.</p>
+        <div class="doc" id="doc"><div class="row"><span>channel</span><span>none yet</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="record">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">The record</div><h2>Every case Countersign has <em>heard.</em></h2></div>
+      <p>Read live from Countersign on GenLayer Chain and the court on GenLayer Bradbury: the share each settlement claimed, the answer the court found in the source, and the stamp.</p></div>
+    <div class="rec" id="rec"><div class="r h"><span>Case</span><span>Claim</span><span>What the court found</span><span>Share</span><span>Verdict</span></div><div class="more">Reading the record...</div></div>
+  </div>
+</section>
+
+<section class="band" id="break">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">Try to break it</div><h2>Each attack runs against the <em>live contracts.</em></h2></div>
+      <p>Free simulations (eth_call) against the deployed Countersign, using real cases from the proof. No wallet needed.</p></div>
+    <div class="atks" id="atks"></div>
+  </div>
+</section>
+
+<section class="band" id="proof">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">Proof</div><h2 id="proof-title">Every path, on chain.</h2></div>
+      <p>scripts/prove.mjs and scripts/prove_flow.mjs, against the deployed contracts. Phase 2 ran after the validator's one-day activation on Yellow's hub; phase 3 is the path above with a brand-new wallet and the real node service.</p></div>
+    <div class="proof" id="proof-list"></div>
+  </div>
+</section>
+
+<section class="band" id="contracts">
+  <div class="wrap">
+    <div class="sh"><div><div class="kicker">Contracts</div><h2>Yellow's hub, <em>unmodified.</em></h2></div>
+      <p>The ChannelHub is built from layer-3/nitrolite at the commit Yellow deployed as sandbox v1.3.0, and matches Yellow's live Base Sepolia hub in all 23,945 executable bytes (scripts/verify_evm.mjs).</p></div>
+    <table class="addr" id="addr"></table>
+  </div>
+</section>
+</main>
+<footer><div class="wrap">Countersign is an open source testnet demo on GenLayer Bradbury, built for Internet Court with Yellow's Nitrolite in mind. Test tokens only. MIT.</div></footer>

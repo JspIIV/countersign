@@ -1,0 +1,68 @@
+{
+  "network": "genlayer testnet bradbury phase 2",
+  "chain_id": 4221,
+  "roles": {
+    "deployer": "0xBdB591cDdd787956a4fB17a8f4C325366525EfD2",
+    "node": "0x0b57877ec84D96b672CD47D8Ea4424283fDB9F6C",
+    "user": "0x80519c53f10D731e4FF83A7d9ACd69cF98da6258"
+  },
+  "ecdsa_validator": {
+    "address": "0x767bfbF98aEA9B4dba06cbe857aA4681F409b613",
+    "tx": "0xf3b2faed04ecee66a845d13e747a266f4707e73de7bf76dac72195258d1a39bc"
+  },
+  "compiler": "0.8.30+commit.73712a01.Emscripten.clang",
+  "channel_engine": {
+    "address": "0x7fb6b87EAd0DA4CC454aCF01c11178F3D98C51da",
+    "tx": "0xab47f0e26a04ee7e46381fceb793d5970852e6150fd525dea92d4cc2562816aa"
+  },
+  "escrow_deposit_engine": {
+    "address": "0x0b430964763D5a63008A7751cd1E74fBf366787A",
+    "tx": "0x9f689490e39a8e7e7f60cf65ae4dbba72af435f7b4c2330e530d531e41b71d9f"
+  },
+  "escrow_withdrawal_engine": {
+    "address": "0x1316a73fe3eEF194ACFfB78cA2D478C3cCd056d2",
+    "tx": "0xa881b43a55c4b987bd0c6261402e50204c66f175397e2b14346c4e28d304a870"
+  },
+  "channel_hub": {
+    "address": "0x6999925Cc2F8a17A0D28c43840eE03044412EE87",
+    "tx": "0x674b1c6a27de65b6a381b3b3a2c3337de14037532eb652786bb746900e72c93b"
+  },
+  "token": {
+    "address": "0x7D680257bD85CD110bAc03fdD4Da657ba88bf10a",
+    "tx": "0xd3ac00ca93aaeb179fac03bc109db53313c93984d5d933b3f66ce390cb2e0a35"
+  },
+  "funded": true,
+  "previous": {
+    "countersign": {
+      "address": "0x292352BC86661249b1851E4A25BFfeE25bC5D8C2",
+      "tx": "0x8fccce468ec886c1d31e05a73b045eff80eba56f3a1b867c7ba40668216a3d8d"
+    },
+    "court": {
+      "address": "0x06DcE79576EC3E225d2E73c910a9e43Fa3645990",
+      "tx": "0x053dba438f2565d1e3b7b4b6b389deefcfd210fb17ed3950f57d9a58d950c886"
+    },
+    "wired": true,
+    "validator_id": 1,
+    "validator_registered_at": 1795168609,
+    "validator_active_from": 1795255009,
+    "address": "0x06DcE79576EC3E225d2E73c910a9e43Fa3645990",
+    "tx": "0x053dba438f2565d1e3b7b4b6b389deefcfd210fb17ed3950f57d9a58d950c886",
+    "deployed_at": "2026-11-20T09:56:44.988Z",
+    "why_replaced": "filings were keyed on (stateHash, respondent) without the channel, so identical settlements in two channels on the same terms collided (AlreadyFiled); v2 keys on (channelId, stateHash, respondent)"
+  },
+  "countersign": {
+    "address": "0x1D5A4e5084d97e0dEe3cEFA69edba2e419Fe4efa",
+    "tx": "0xdcc0ebe71190347ba8a287f3e89e6457cfc9a4ba520aa479ec1e59f979871000"
+  },
+  "court": {
+    "address": "0x77E0695505BeD07dB72F14efB685DE16a498E976",
+    "tx": "0x29a2eaf43cfc58f827a8910b361419554db1d97fcb069bc577b3449a953505ab"
+  },
+  "address": "0x77E0695505BeD07dB72F14efB685DE16a498E976",
+  "tx": "0x29a2eaf43cfc58f827a8910b361419554db1d97fcb069bc577b3449a953505ab",
+  "deployed_at": "2026-11-23T14:28:30.985Z",
+  "wired": true,
+  "validator_id": 2,
+  "validator_registered_at": 1795444129,
+  "validator_active_from": 1795530529
+}
