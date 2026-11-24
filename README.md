@@ -90,7 +90,7 @@ proof are kept in `deployment.json` (`previous`) and `results/v1/`.
 transaction in `results/`. In phase 1, padv is the user, ppub the node and pchg a stranger who files the cases and asks
 the court. Phase 3 is the page's path, run with a brand-new wallet and the real node service code.
 
-**Phase 1: cases and verdicts (22/22).** Four channels open on Yellow's hub with 10 tUSD each, three approving
+**Phase 1: cases and verdicts (21 checks).** Four channels open on Yellow's hub with 10 tUSD each, three approving
 Countersign. Terms: Mount Everest's height from Wikipedia, Yes 15 / No 5.
 
 | Case | Settlement | Filed | Court | Verdict |
@@ -103,10 +103,10 @@ Countersign. Terms: Mount Everest's height from Wikipedia, Yes 15 / No 5.
 Around them: eight filing guards (terms that are not the committed ones, an anchor the node never signed, a stale
 settlement, one both signed, one neither signed, a duplicate, a CLOSE that pays out more than the channel holds, a
 stranger ruling), eight `validateSignature` checks (only the ruled state, its channel, the silent side; a refused,
-unknown or malformed case signs nothing; never a challenge), and the hub refusing a countersignature before the
-validator's one-day activation.
+unknown or malformed case signs nothing; never a challenge). Before the validator's one-day activation the hub also
+refused a countersignature (`ValidatorNotActive`), recorded on 2026-11-23.
 
-**Phase 3: the reviewer's path (12/12 so far).** A new wallet gets 10 tUSD from the node's faucet, opens channels
+**Phase 3: the reviewer's path (16/16).** A new wallet gets 10 tUSD from the node's faucet, opens channels
 whose first state the node service signs, and asks the node to sign its CLOSE; the node refuses every time.
 
 | Channel | Bet | Claim | Filed | Court | Verdict |
@@ -119,10 +119,23 @@ whose first state the node service signs, and asks the node to sign its CLOSE; t
 The node service's own rules are checked too: no Countersign approval, another deposit, a bet it does not offer, a
 state the user did not sign and a channel that already exists are all refused.
 
-**Phase 2 and the closes: enforcement on Yellow's hub.** Countersign v2 becomes active on the hub at
-2026-11-24 14:28 UTC (the hub makes every validator registration wait a day). Then A2 is checkpointed with no node
-signature, B is closed with no user signature, E, G and F are closed by the wallet alone, and the refused cases are
-rejected by the hub. v1 ran this whole path on the same hub: 28/28 and 14/14, in `results/v1/`.
+**Phase 2 and the closes: enforcement on Yellow's hub.** Countersign v2 became active on the hub on 2026-11-24 at 14:28
+UTC. Phase 2 (7 checks, 28/28 with phase 1) and the closes of phase 3 ran after it.
+
+| What | Transaction | Result |
+|---|---|---|
+| A2 checkpointed by the user, Countersign standing in for the node | [`0x5a76ea52`](https://scan.testnet-chain.genlayer.com/tx/0x5a76ea521d9937713ec31327f3980a740b7a513d7b430ecf2efacfc518d97143) | enforced: the user holds 15, the node's vault locked 5 more |
+| B closed by the node, Countersign standing in for the user | [`0xc4f98fb8`](https://scan.testnet-chain.genlayer.com/tx/0xc4f98fb81d718288a509e0504de495cfba543e704db24039cd80f749590e686a) | closed, the user paid exactly 5 |
+| E closed by the new wallet alone | [`0x37b0fdc9`](https://scan.testnet-chain.genlayer.com/tx/0x37b0fdc9bd99d6a1ea79738d98b002f7a11474d1f75f5ac03b1adaebe477f6f2) | 10 tUSD back, no node signature |
+| G, the same settlement in a second channel | [`0xe2e28893`](https://scan.testnet-chain.genlayer.com/tx/0xe2e28893414c2bc40b60ab57c0e4e9458e69ce00686588aacdfe48c9f205cd43) | 10 tUSD back |
+| F closed with the honest claim | [`0xf045dd14`](https://scan.testnet-chain.genlayer.com/tx/0xf045dd14ed68ba3a208cba1227467912e41d969382f7e98b418bc5c1bcf64c0c) | 2 tUSD back |
+| A1 and F's false claim, offered to the hub with their refused cases | `eth_call` | `IncorrectSignature` |
+| a countersignature on channel D, which never approved Countersign | `eth_call` | `ValidatorNotApproved` |
+| B closed a second time | `eth_call` | `IncorrectSignature` |
+
+Balances are exact on both sides. All 44 checks pass: 28 in `results/proof.json`, 16 in `results/flow_proof.json`. One
+court round on E ended UNDETERMINED and changed nothing; asking again ruled it. v1 ran the same path on the same hub,
+in `results/v1/`.
 
 ## Tests
 

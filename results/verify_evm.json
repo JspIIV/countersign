@@ -50,9 +50,9 @@
   {
     "chain": "GenLayer Chain",
     "name": "Countersign",
-    "address": "0x292352BC86661249b1851E4A25BFfeE25bC5D8C2",
+    "address": "0x1D5A4e5084d97e0dEe3cEFA69edba2e419Fe4efa",
     "ok": true,
-    "bytes": 9573,
+    "bytes": 9581,
     "filled": 7
   }
 ]
