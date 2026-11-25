@@ -1,7 +1,7 @@
 // Deploy Countersign end to end on GenLayer Bradbury. On GenLayer Chain (chain 4221): Yellow's Nitrolite exactly as
 // Yellow deploys it (ECDSAValidator, the three engine libraries, ChannelHub linked to them, a PremintERC20 test token),
 // Countersign, then the court Intelligent Contract, the one time wiring of Countersign to it, and the node's signed
-// registration of Countersign as validator id 1 in the hub's registry. Finally the node funds its vault and the user
+// registration of Countersign as a validator in the hub's registry. Finally the node funds its vault and the user
 // gets test tokens. Nitrolite code is unmodified (scripts/verify_evm.mjs).
 //   node scripts/deploy.mjs
 // Roles: pchg deploys, ppub is the Nitrolite node (the hub's NODE), padv is the user.
@@ -17,10 +17,11 @@ const provider = new JsonRpcProvider('https://rpc.testnet-chain.genlayer.com', 4
 async function wallet(k) { return (await Wallet.fromEncryptedJson(fs.readFileSync(path.join(KS, k + '.json'), 'utf8'), process.env[k.toUpperCase()] || PW[k])).connect(provider); }
 const deployer = await wallet('pchg'), node = await wallet('ppub'), user = await wallet('padv');
 
-// v1 (id 1, 2026-11-20) keyed filings without the channel; v2 is id 2. See deployment.json "previous".
-export const VALIDATOR_ID = Number(process.env.VALIDATOR_ID || 2);
+// v1 (id 1) keyed filings without the channel; v2 (id 2) answered to a court on Bradbury Phase 2, which ended on
+// 2026-11-25; id 3 answers to the Phase 3 court. See deployment.json "previous".
+export const VALIDATOR_ID = Number(process.env.VALIDATOR_ID || 3);
 const OUT = path.join(ROOT, 'deployment.json');
-const dep = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : { network: 'genlayer testnet bradbury phase 2', chain_id: 4221 };
+const dep = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : { network: 'genlayer testnet bradbury phase 3', chain_id: 4221 };
 const save = () => fs.writeFileSync(OUT, JSON.stringify(dep, null, 2));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 fs.mkdirSync(path.join(ROOT, 'evm', 'abi'), { recursive: true });

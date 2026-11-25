@@ -22,7 +22,11 @@ const KS = path.join(os.homedir(), '.genlayer', 'keystores');
 // Keystore passwords come from PCHG, PADV and PPUB in the environment.
 const PW = {};
 const dep = JSON.parse(fs.readFileSync(path.join(ROOT, 'deployment.json'), 'utf8'));
-const chain = new JsonRpcProvider('https://rpc.testnet-chain.genlayer.com', 4221);
+// Reads are retried when the public endpoint drops a connection; sends are not.
+class Patient extends JsonRpcProvider {
+  async send(m, a) { for (let i = 0; ; i++) { try { return await super.send(m, a); } catch (e) { if (/^eth_send/.test(m) || i >= 8 || !/TIMEOUT|SERVER_ERROR|ECONN|-32017|rate limit/i.test(`${e.code} ${e.message}`)) throw e; await new Promise((r) => setTimeout(r, 3000)); } } }
+}
+const chain = new Patient('https://rpc.testnet-chain.genlayer.com', 4221, { staticNetwork: true });
 const abi = (n) => JSON.parse(fs.readFileSync(path.join(ROOT, 'evm', 'abi', n + '.json'), 'utf8'));
 const key = async (k) => (await Wallet.fromEncryptedJson(fs.readFileSync(path.join(KS, k + '.json'), 'utf8'), process.env[k.toUpperCase()] || PW[k])).connect(chain);
 const user = await key('padv'), node = await key('ppub'), stranger = await key('pchg');
@@ -138,30 +142,41 @@ check('nobody but the court can rule', (await revertOf(() => cs.connect(stranger
 
 // ------------------------------------------------------------------ the court
 const caseOf = async (n) => JSON.parse(await anybody.readContract({ address: COURT, functionName: 'case', args: [n] }));
+// A round is accepted in a minute or two, and final, reaching Countersign, about half an hour later: every case is asked
+// first, then every verdict is waited for. A round that changed nothing is asked again.
+const rounds = st.rounds || (st.rounds = {});
 async function ask(name) {
   const n = cases[name];
-  if ((await caseOf(n)).exists === false) {
-    const gasLimit = 300000n, maxGasPrice = 1000000000n, budget = gasLimit * maxGasPrice;
-    const feeParams = coder.encode(['uint256', 'uint256'], [gasLimit, maxGasPrice]);
-    const messageAllocations = [{ messageType: 0, onAcceptance: false, recipient: cs.target, budget, feeParams }];
-    const est = await gl.estimateTransactionFees({ totalMessageFees: budget, messageAllocations });
-    const hash = await gl.writeContract({ address: COURT, functionName: 'rule', args: [n], value: 0n,
-      fees: { distribution: est.distribution, feeValue: est.feeValue, messageAllocations } });
-    glTxs.push({ label: `rule ${name} (case ${n})`, hash }); save();
-    for (let i = 0; i < 90; i++) {
-      await sleep(10000);
-      const t = await anybody.getTransaction({ hash });
-      if (['FINALIZED', 'UNDETERMINED', 'CANCELED'].includes(t.statusName)) { say(`    rule ${name}: ${t.statusName} ${t.txExecutionResultName}`); break; }
+  for (let attempt = 0; attempt < 4 && (await caseOf(n)).exists === false; attempt++) {
+    if (!rounds[name]) {
+      const gasLimit = 300000n, maxGasPrice = 1000000000n, budget = gasLimit * maxGasPrice;
+      const feeParams = coder.encode(['uint256', 'uint256'], [gasLimit, maxGasPrice]);
+      const messageAllocations = [{ messageType: 0, onAcceptance: false, recipient: cs.target, budget, feeParams }];
+      const est = await gl.estimateTransactionFees({ totalMessageFees: budget, messageAllocations });
+      rounds[name] = await gl.writeContract({ address: COURT, functionName: 'rule', args: [n], value: 0n,
+        fees: { distribution: est.distribution, feeValue: est.feeValue, messageAllocations } });
+      glTxs.push({ label: `rule ${name} (case ${n})`, hash: rounds[name] }); save();
     }
+    for (let i = 0; i < 120; i++) {
+      await sleep(10000);
+      const t = await anybody.getTransaction({ hash: rounds[name] });
+      if (['ACCEPTED', 'FINALIZED', 'UNDETERMINED', 'CANCELED'].includes(t.statusName)) { say(`    rule ${name}: ${t.statusName} ${t.txExecutionResultName}`); break; }
+    }
+    for (let i = 0; i < 10 && (await caseOf(n)).exists === false; i++) await sleep(3000);
+    if ((await caseOf(n)).exists === false) { rounds[name] = null; save(); }
   }
-  for (let i = 0; i < 40 && Number((await cs.getCase(n)).verdict) === 1; i++) await sleep(5000);
+}
+async function settled(name) {
+  const n = cases[name];
+  for (let i = 0; i < 400 && Number((await cs.getCase(n)).verdict) === 1; i++) await sleep(15000);
   return caseOf(n);
 }
 say('\nthe court');
 const VERDICT = ['NONE', 'FILED', 'SIGNED', 'REFUSED'];
 const verdicts = st.verdicts || (st.verdicts = {});
+for (const name of Object.keys(settlements)) await ask(name);
 for (const [name, x] of Object.entries(settlements)) {
-  const k = await ask(name);
+  const k = await settled(name);
   const onChain = VERDICT[Number((await cs.getCase(cases[name])).verdict)];
   verdicts[name] = { case: cases[name], verdict: k.verdict, on_countersign: onChain, answer: k.answer_text, why: k.why, judges: k.judges }; save();
   check(`${name} (${x.label}): ${k.verdict}, wanted ${x.want}, landed on Countersign as ${onChain}`, k.verdict === x.want && onChain === x.want, String(k.why || '').slice(0, 140));

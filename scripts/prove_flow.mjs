@@ -18,7 +18,11 @@ const KS = path.join(os.homedir(), '.genlayer', 'keystores');
 // Keystore passwords come from PCHG, PADV and PPUB in the environment.
 const PW = {};
 const dep = JSON.parse(fs.readFileSync(path.join(ROOT, 'deployment.json'), 'utf8'));
-const chain = new JsonRpcProvider('https://rpc.testnet-chain.genlayer.com', 4221);
+// Reads are retried when the public endpoint drops a connection; sends are not.
+class Patient extends JsonRpcProvider {
+  async send(m, a) { for (let i = 0; ; i++) { try { return await super.send(m, a); } catch (e) { if (/^eth_send/.test(m) || i >= 8 || !/TIMEOUT|SERVER_ERROR|ECONN|-32017|rate limit/i.test(`${e.code} ${e.message}`)) throw e; await new Promise((r) => setTimeout(r, 3000)); } } }
+}
+const chain = new Patient('https://rpc.testnet-chain.genlayer.com', 4221, { staticNetwork: true });
 const abi = (n) => JSON.parse(fs.readFileSync(path.join(ROOT, 'evm', 'abi', n + '.json'), 'utf8'));
 const key = async (k) => (await Wallet.fromEncryptedJson(fs.readFileSync(path.join(KS, k + '.json'), 'utf8'), process.env[k.toUpperCase()] || PW[k])).connect(chain);
 const deployer = await key('pchg'), nodeW = await key('ppub');
@@ -90,9 +94,9 @@ async function open(name, bet) {
   c.opened = true; save();
   return c;
 }
+/** File the wallet's CLOSE and ask the court, until the round is accepted. */
 async function claim(name, share) {
   const c = st[name], k = `${name}_${share}`;
-  if (st[k]?.verdict && st[k].verdict !== 'FILED') return st[k];
   const s = closeFor(usd.target, c.bet, share);
   s.userSig = withValidatorByte(await me.signMessage(signedMessage(c.cid, s)));
   if (!st[k]) {
@@ -103,30 +107,32 @@ async function claim(name, share) {
     st[k] = { caseId: id, nodeRefused: r.code === 400, state: pack(s) }; save();
   }
   const x = st[k];
+  const ruling = async () => JSON.parse(await anybody.readContract({ address: dep.court.address, functionName: 'case', args: [x.caseId] }));
   // A round that ends UNDETERMINED (validators could not agree, or a source was unreachable) changes nothing: ask again.
-  for (let attempt = 0; attempt < 3; attempt++) {
-  if (!x.round) {
-    const gasLimit = 300000n, maxGasPrice = 1000000000n, budget = gasLimit * maxGasPrice;
-    const feeParams = coder.encode(['uint256', 'uint256'], [gasLimit, maxGasPrice]);
-    const messageAllocations = [{ messageType: 0, onAcceptance: false, recipient: cs.target, budget, feeParams }];
-    const est = await gl.estimateTransactionFees({ totalMessageFees: budget, messageAllocations });
-    x.round = await gl.writeContract({ address: dep.court.address, functionName: 'rule', args: [x.caseId], value: 0n, fees: { distribution: est.distribution, feeValue: est.feeValue, messageAllocations } });
-    glTxs.push({ label: `rule ${k} (case ${x.caseId})`, hash: x.round }); save();
+  for (let attempt = 0; attempt < 4 && (await ruling()).exists === false; attempt++) {
+    if (!x.round) {
+      const gasLimit = 300000n, maxGasPrice = 1000000000n, budget = gasLimit * maxGasPrice;
+      const feeParams = coder.encode(['uint256', 'uint256'], [gasLimit, maxGasPrice]);
+      const messageAllocations = [{ messageType: 0, onAcceptance: false, recipient: cs.target, budget, feeParams }];
+      const est = await gl.estimateTransactionFees({ totalMessageFees: budget, messageAllocations });
+      x.round = await gl.writeContract({ address: dep.court.address, functionName: 'rule', args: [x.caseId], value: 0n, fees: { distribution: est.distribution, feeValue: est.feeValue, messageAllocations } });
+      glTxs.push({ label: `rule ${k} (case ${x.caseId})`, hash: x.round }); save();
+    }
+    for (let i = 0; i < 120; i++) {
+      const t = await anybody.getTransaction({ hash: x.round });
+      if (['ACCEPTED', 'FINALIZED', 'UNDETERMINED', 'CANCELED'].includes(t.statusName)) { say(`    ${k}: round ${t.statusName}`); break; }
+      await sleep(10000);
+    }
+    for (let i = 0; i < 10 && (await ruling()).exists === false; i++) await sleep(3000);
+    if ((await ruling()).exists === false) { say(`    ${k}: the round changed nothing; asking the court again`); x.round = null; save(); }
   }
-  for (let i = 0; i < 120; i++) {
-    const t = await anybody.getTransaction({ hash: x.round });
-    if (['FINALIZED', 'UNDETERMINED', 'CANCELED'].includes(t.statusName)) { say(`    ${k}: round ${t.statusName}`); break; }
-    await sleep(10000);
-  }
-  for (let i = 0; i < 40 && Number((await cs.getCase(x.caseId)).verdict) === 1; i++) await sleep(5000);
-  x.verdict = ['NONE', 'FILED', 'SIGNED', 'REFUSED'][Number((await cs.getCase(x.caseId)).verdict)];
-  if (x.verdict !== 'FILED') break;
-  say(`    ${k}: the round changed nothing; asking the court again`);
-  x.round = null; save();
-  }
-  x.ruling = JSON.parse(await anybody.readContract({ address: dep.court.address, functionName: 'case', args: [x.caseId] }));
-  save();
+  x.ruling = await ruling(); save();
   return x;
+}
+/** The verdict is final, and reaches Countersign, about half an hour after the round is accepted. */
+async function land(x) {
+  for (let i = 0; i < 400 && Number((await cs.getCase(x.caseId)).verdict) === 1; i++) await sleep(15000);
+  x.verdict = ['NONE', 'FILED', 'SIGNED', 'REFUSED'][Number((await cs.getCase(x.caseId)).verdict)]; save();
 }
 async function close(name, share, label) {
   const c = st[name], x = st[`${name}_${share}`];
@@ -137,29 +143,32 @@ async function close(name, share, label) {
   x.closed = true; x.received = ((await usd.balanceOf(me.address)) - before).toString(); save();
 }
 
-say('\nchannel E: a true bet, claimed honestly');
+// All four claims are filed and judged first, then their verdicts are waited for together.
 await open('E', 'above8800');
 const e = await claim('E', 10);
+await open('G', 'above8800');
+const g = await claim('G', 10);
+await open('F', 'below8000');
+const f1 = await claim('F', 10);
+const f2 = await claim('F', 2);
+for (const x of [e, g, f1, f2]) await land(x);
+
+say('\nchannel E: a true bet, claimed honestly');
 check('the node refuses to sign the settlement it owes', e.nodeRefused);
 check('the court SIGNS the claim of 10: the source shows Yes', e.verdict === 'SIGNED' && e.ruling.verdict === 'SIGNED', String(e.ruling.why || '').slice(0, 140));
 
 say('\nchannel G: another channel on the same bet, claiming the same 10');
 // The two CLOSE states have identical signing data: Nitrolite's signing data does not name the channel. v1 keyed filings
 // on (stateHash, respondent) and refused this one as AlreadyFiled, so one channel could block another's settlement.
-await open('G', 'above8800');
-const g = await claim('G', 10);
 check('an identical settlement in another channel is its own case (the v1 collision is gone)', g.caseId !== e.caseId && g.verdict === 'SIGNED', `case ${g.caseId} beside E's case ${e.caseId}`);
 
 say('\nchannel F: a false bet, claimed greedily, then honestly');
-await open('F', 'below8000');
-const f1 = await claim('F', 10);
 check('the court REFUSES a claim of 10: the source shows No', f1.verdict === 'REFUSED', String(f1.ruling.why || '').slice(0, 140));
-const f2 = await claim('F', 2);
 check('the court SIGNS the honest claim of 2', f2.verdict === 'SIGNED', String(f2.ruling.why || '').slice(0, 140));
 
 const now = (await chain.getBlock('latest')).timestamp;
 if (now < dep.validator_active_from) {
-  say(`\nYellow's hub enforces Countersign v2 from ${new Date(dep.validator_active_from * 1000).toISOString()}; the closes run then.`);
+  say(`\nYellow's hub enforces validator ${dep.validator_id} from ${new Date(dep.validator_active_from * 1000).toISOString()}; the closes run then.`);
   const early = await revertOf(() => hub.connect(me).closeChannel.staticCall(st.E.cid, asTuple({ ...unpackState(e.state), nodeSig: countersigned(dep.validator_id, e.caseId) })));
   say(`  a close before activation: ${early}`);
 } else {

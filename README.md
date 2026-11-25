@@ -17,8 +17,8 @@ the id of a case Internet Court decided, and only for the exact state the court 
 
 - **Live demo:** https://jspiiv.github.io/countersign/: open a channel with a node that goes silent, take your claim
   to the court, close the channel without the node; or claim falsely and watch the court and the hub refuse.
-- **The court (GenLayer Bradbury):** [`0x77E0695505BeD07dB72F14efB685DE16a498E976`](https://scan.bradbury.genlayer.com/address/0x77E0695505BeD07dB72F14efB685DE16a498E976)
-- **Countersign (GenLayer Chain):** `0x1D5A4e5084d97e0dEe3cEFA69edba2e419Fe4efa`, validator id 2 on the hub
+- **The court (GenLayer Bradbury):** [`0xdB347ea00FBF35b21b5a8dE271CaA3b13FA00B2B`](https://scan.bradbury.genlayer.com/address/0xdB347ea00FBF35b21b5a8dE271CaA3b13FA00B2B)
+- **Countersign (GenLayer Chain):** `0xA372004bA02A12B25250cbaCDb9751eAfeC4167C`, validator id 3 on the hub
 - **Skill:** [`SKILL.md`](SKILL.md) · **Security:** [`SECURITY.md`](SECURITY.md)
 
 ```text
@@ -27,7 +27,7 @@ session ends; the user signs its settlement; the node goes silent
 anybody ──fileCase(channel, first state, signed settlement, terms)──▶ Countersign: checks both against the hub, files a case
 anybody ──rule(case)──▶ the court (GenLayer): validators read the cited source, agree on the answer; shares compared in code
 the court's Ghost ──rule(case, SIGNED | REFUSED)──▶ Countersign          (when the verdict is final; no relayer, no key)
-user ──closeChannel(state, nodeSig = [0x02][caseId])──▶ ChannelHub ──validateSignature──▶ Countersign ──▶ paid
+user ──closeChannel(state, nodeSig = [0x03][caseId])──▶ ChannelHub ──validateSignature──▶ Countersign ──▶ paid
 ```
 
 ## The parts

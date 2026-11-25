@@ -1,5 +1,5 @@
-# v0.3.0
-# { "Depends": "py-genlayer:babwp9t37jw9g4j2bccgn14g6x7x9s1f7dsmh7emvz735pz4zxa0" }
+# v0.4.0
+# { "Depends": "py-genlayer:kzybg95x1gn21dw72m7hyg0maaap04n4nx55j9yt6fkdqxtz6bz0" }
 """Countersign: Internet Court as a Yellow Nitrolite signature validator.
 
 A Nitrolite state channel moves money only on states both sides signed. When a session ends and one side refuses to
@@ -132,15 +132,25 @@ def page_text(body) -> str:
     return _clip(text, MAX_PAGE)
 
 
-@gl.evm.contract_interface
-class Countersign:
-    class View:
-        def facts(self, case_id: gl.u256, /) -> tuple[gl.evm.bytes32, gl.Address, gl.Address, bool, gl.u256, gl.u256, gl.u256, gl.u256, gl.u256, gl.u256]: ...
-        def termsOf(self, case_id: gl.u256, /) -> str: ...
-        def caseCount(self, /) -> gl.u256: ...
+def _iface_Countersign():
+    """The Countersign interface, generated on first use rather than at import: GenVM's validator imports
+    contracts with GENERATING_DOCS=true, where the SDK's EVM view generator raises KeyError('return')."""
 
-    class Write:
-        def rule(self, case_id: gl.u256, sign: bool, reason: gl.evm.bytes32, /) -> None: ...
+    @gl.evm.contract_interface
+    class Countersign:
+        class View:
+            def facts(self, case_id: gl.u256, /) -> tuple[gl.evm.bytes32, gl.Address, gl.Address, bool, gl.u256, gl.u256, gl.u256, gl.u256, gl.u256, gl.u256]: ...
+            def termsOf(self, case_id: gl.u256, /) -> str: ...
+            def caseCount(self, /) -> gl.u256: ...
+
+        class Write:
+            def rule(self, case_id: gl.u256, sign: bool, reason: gl.evm.bytes32, /) -> None: ...
+
+    return Countersign
+
+
+def Countersign(address):
+    return _iface_Countersign()(address)
 
 
 def _task(terms: dict, pages: list) -> str:

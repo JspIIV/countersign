@@ -7,3 +7,5 @@ results/v1/*.log
 *.mp4
 results/flow_state.json
 results/v1/flow_state.json
+results/v2/*.log
+results/v2/flow_state.json

@@ -9,19 +9,19 @@ description: Put a Yellow Nitrolite state channel under Internet Court. Approve 
 
 | Contract | Address | Where |
 |---|---|---|
-| The court (Intelligent Contract) | `0x77E0695505BeD07dB72F14efB685DE16a498E976` | GenLayer Bradbury |
-| Countersign (validator id 2) | `0x1D5A4e5084d97e0dEe3cEFA69edba2e419Fe4efa` | GenLayer Chain (4221) |
+| The court (Intelligent Contract) | `0xdB347ea00FBF35b21b5a8dE271CaA3b13FA00B2B` | GenLayer Bradbury |
+| Countersign (validator id 3) | `0xA372004bA02A12B25250cbaCDb9751eAfeC4167C` | GenLayer Chain (4221) |
 | ChannelHub (Yellow's Nitrolite, unmodified) | `0x6999925Cc2F8a17A0D28c43840eE03044412EE87` | GenLayer Chain |
 | Test USD | `0x7D680257bD85CD110bAc03fdD4Da657ba88bf10a` | GenLayer Chain |
 
-RPC for GenLayer writes: `https://rpc-bradbury.genlayer.com`. RPC for EVM calls: `https://rpc.testnet-chain.genlayer.com`.
+RPC for GenLayer writes: `https://rpc.bradbury.genlayer.com` (genlayer-js 2.1.0; reads only, sends go to the chain RPC). RPC for EVM calls: `https://rpc.testnet-chain.genlayer.com`.
 Shared encoders: [`lib/channel.mjs`](lib/channel.mjs).
 
 ## Workflow
 
 1. **Open the channel with Countersign approved and the terms committed.**
    ```js
-   const def = { challengeDuration: 86400, user, node, nonce, approvedSignatureValidators: 1n << 2n, metadata: ZeroHash };
+   const def = { challengeDuration: 86400, user, node, nonce, approvedSignatureValidators: 1n << 3n, metadata: ZeroHash };
    const first = { version: 1n, intent: DEPOSIT, metadata: keccak256(toUtf8Bytes(termsJson)), homeLedger: deposit };
    // both sign: [0x00][EIP-191 over abi.encode(channelId, signingData(first))]
    await hub.createChannel(def, { ...first, userSig, nodeSig });
@@ -44,7 +44,7 @@ Shared encoders: [`lib/channel.mjs`](lib/channel.mjs).
    ```
 4. **Once `getCase(caseId).verdict` is SIGNED (2),** enforce on the hub with the case as the missing signature:
    ```js
-   const countersig = concat(['0x02', zeroPadValue(toBeHex(caseId), 32)]);   // validator id 2, then the case id
+   const countersig = concat(['0x03', zeroPadValue(toBeHex(caseId), 32)]);   // validator id 3, then the case id
    await hub.closeChannel(channelId, { ...mySignedSettlement, nodeSig: countersig });   // or checkpointChannel for OPERATE
    ```
 

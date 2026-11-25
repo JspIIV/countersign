@@ -1,20 +1,20 @@
 <script type="module">
 // Bundled builds, one file each, so the module CDN does not rate-limit the page.
-import { createClient } from "https://esm.sh/genlayer-js@2.0.0-rc.2?bundle";
-import { testnetBradbury } from "https://esm.sh/genlayer-js@2.0.0-rc.2/chains?bundle";
+import { createClient } from "https://esm.sh/genlayer-js@2.1.0?bundle";
+import { testnetBradbury } from "https://esm.sh/genlayer-js@2.1.0/chains?bundle";
 import { BrowserProvider, Contract, Interface, AbiCoder, MaxUint256, formatUnits, Wallet } from "https://esm.sh/ethers@6.13.4";
-import { ChainProvider, CHAIN_RPCS } from "./rpc.js";
+import { ChainProvider } from "./rpc.js";
 import { BETS, definition, channelId, anchor, closeFor, signedMessage, withValidatorByte, countersigned, asTuple, signingData, pack, unpackState, unpackDef, DEPOSIT } from "./channel.js";
 
 const DEP = __DEP__;
 const PROOF = __PROOF__;
 const ERRORS = __ERRORS__;
 const NODE_API = __NODE_API__;
-const RPC = "https://rpc-bradbury.genlayer.com";
+const RPC = "https://rpc.bradbury.genlayer.com", CHAIN_RPC = "https://rpc.testnet-chain.genlayer.com";
 const EXPLORER = "https://scan.bradbury.genlayer.com";
 const CHAIN_EXPLORER = "https://scan.testnet-chain.genlayer.com";
 const CHAIN_ID_HEX = "0x107d";
-const CHAIN_PARAMS = { chainId: CHAIN_ID_HEX, chainName: "GenLayer Bradbury", nativeCurrency: { name: "GEN", symbol: "GEN", decimals: 18 }, rpcUrls: CHAIN_RPCS, blockExplorerUrls: [CHAIN_EXPLORER] };
+const CHAIN_PARAMS = { chainId: CHAIN_ID_HEX, chainName: "GenLayer Bradbury", nativeCurrency: { name: "GEN", symbol: "GEN", decimals: 18 }, rpcUrls: [CHAIN_RPC], blockExplorerUrls: [CHAIN_EXPLORER] };
 const STATE_T = "tuple(uint64 version,uint8 intent,bytes32 metadata,tuple(uint64 chainId,address token,uint8 decimals,uint256 userAllocation,int256 userNetFlow,uint256 nodeAllocation,int256 nodeNetFlow) homeLedger,tuple(uint64 chainId,address token,uint8 decimals,uint256 userAllocation,int256 userNetFlow,uint256 nodeAllocation,int256 nodeNetFlow) nonHomeLedger,bytes userSig,bytes nodeSig)";
 const DEF_T = "tuple(uint32 challengeDuration,address user,address node,uint64 nonce,uint256 approvedSignatureValidators,bytes32 metadata)";
 const HUB_ABI = [`function createChannel(${DEF_T} def, ${STATE_T} initState) payable`, `function closeChannel(bytes32 channelId, ${STATE_T} candidate)`,
@@ -33,14 +33,25 @@ const errs = new Interface(ERRORS);
 const reader = createClient({ chain: testnetBradbury, endpoint: RPC });
 let account = null, eip1193 = null;
 const realFetch = window.fetch.bind(window);
-// The SDK quotes fees with an eth_call that has a gas price and no sender, which the node refuses from the zero address.
+// The node answers reads only, so sends go to GenLayer Chain's own endpoint; and the SDK quotes fees with an eth_call
+// that has a gas price and no sender, which is refused from the zero address.
 window.fetch = async (input, init) => {
-  if (account && init && typeof init.body === "string" && init.body.includes('"eth_call"')) {
-    const body = JSON.parse(init.body);
-    for (const req of Array.isArray(body) ? body : [body]) if (req.method === "eth_call" && req.params?.[0] && !req.params[0].from) req.params[0].from = account;
-    return realFetch(input, { ...init, body: JSON.stringify(body) });
+  let url = input;
+  if (init && typeof init.body === "string") {
+    if (String(input).startsWith(RPC) && init.body.includes('"eth_send')) url = CHAIN_RPC;
+    if (account && init.body.includes('"eth_call"')) {
+      const body = JSON.parse(init.body);
+      for (const req of Array.isArray(body) ? body : [body]) if (req.method === "eth_call" && req.params?.[0] && !req.params[0].from) req.params[0].from = account;
+      init = { ...init, body: JSON.stringify(body) };
+    }
   }
-  return realFetch(input, init);
+  // The node rate-limits reads by IP; a refused read was never run, so it is asked again. Sends are never repeated.
+  const read = init && typeof init.body === "string" && init.body.includes('"gen_call"');
+  for (let i = 0; ; i++) {
+    const res = await realFetch(url, init);
+    if (!read || i >= 8 || !/rate limit/i.test(await res.clone().text())) return res;
+    await new Promise((r) => setTimeout(r, 1200 * (i + 1) + Math.random() * 800));
+  }
 };
 
 const $ = (id) => document.getElementById(id);
@@ -199,7 +210,8 @@ $("b-ask").onclick = async () => {
   } catch (e) { say(reasonOf(e), "bad"); }
 };
 async function follow(c) {
-  for (let i = 0; i < 400; i++) {
+  let agreed = null;
+  for (let i = 0; i < 700; i++) {
     let tx = null; try { tx = await reader.getTransaction({ hash: c.round }); } catch {}
     const name = String(tx?.statusName || "");
     if (name === "FINALIZED") {
@@ -211,7 +223,8 @@ async function follow(c) {
       return;
     }
     if (["UNDETERMINED", "CANCELED", "LEADER_TIMEOUT", "VALIDATORS_TIMEOUT"].includes(name)) { say(`The round ended ${name} and changed nothing. Ask again. ${glLink(c.round, "round")}`, "bad"); c.round = null; keep(c); draw(); return; }
-    say(name === "ACCEPTED" ? `Accepted by the validators. The court acts only once its verdict is final ... ${glLink(c.round, "round")}` : `Validators are reading the source ... ${(i + 1) * 6}s, ${name || "waiting for the network"}. ${glLink(c.round, "round")}`, "busy");
+    if (name === "ACCEPTED" && !agreed) { try { const k = JSON.parse(await reader.readContract({ address: DEP.court, functionName: "case", args: [c.caseId] })); if (k.verdict) agreed = k; } catch {} }
+    say(name === "ACCEPTED" ? `${agreed ? `The validators agreed: <b>${agreed.verdict}</b>. ${esc(agreed.why)} ` : "Accepted by the validators. "}It reaches Countersign when the half hour appeal window closes. You can leave and come back. ${glLink(c.round, "round")}` : `Validators are reading the source ... ${(i + 1) * 6}s, ${name || "waiting for the network"}. ${glLink(c.round, "round")}`, "busy");
     await sleep(6000);
   }
 }
@@ -242,13 +255,15 @@ async function loadRecord() {
   const ids = []; for (let i = n - 1; i >= 0 && ids.length < 30; i--) ids.push(i);
   let signed = 0, refused = 0;
   const rows = [];
-  // A few cases at a time: each court read is a GenLayer call of a few seconds.
   const got = new Array(ids.length);
+  // The court's rulings come in one read, newest first.
+  const ruled = {};
+  try { for (const k of JSON.parse(await reader.readContract({ address: DEP.court, functionName: "page", args: [0, 50] })).items) ruled[k.case] = k; } catch (e) { console.warn("court", e); }
   let next = 0;
   await Promise.all([...Array(Math.min(5, ids.length))].map(async () => {
     while (next < ids.length) {
       const i = next++, id = ids[i];
-      got[i] = await Promise.all([reader.readContract({ address: DEP.court, functionName: "case", args: [id] }).then(JSON.parse).catch(() => ({})), cs.getCase(id)]);
+      got[i] = [ruled[id] || {}, await cs.getCase(id)];
     }
   }));
   for (const [i, id] of ids.entries()) {
