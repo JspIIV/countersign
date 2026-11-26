@@ -50,7 +50,9 @@
         "terms_sha256": "bd3815bc3a55908bc594d4d68a7df6afc2f53dcec9b91694a790735dbdf1cb54",
         "reason": "f38253b22d6dc6dc9bce6dbeaad036afd2f0d9417476b9d9dd2afbebb5b91101"
       },
-      "verdict": "SIGNED"
+      "verdict": "SIGNED",
+      "closed": true,
+      "received": "10000000"
     },
     "G_10": {
       "caseId": 4,
@@ -95,7 +97,9 @@
         "terms_sha256": "bd3815bc3a55908bc594d4d68a7df6afc2f53dcec9b91694a790735dbdf1cb54",
         "reason": "a0e2ed546c1c46b31445516387db939660c7d3879e73d1fc91d0c12ad760e8f8"
       },
-      "verdict": "SIGNED"
+      "verdict": "SIGNED",
+      "closed": true,
+      "received": "10000000"
     },
     "F_10": {
       "caseId": 6,
@@ -185,7 +189,9 @@
         "terms_sha256": "6e01e75828a243285fba775b15776857ac5fa54052714aaa13b553371ff2ee3a",
         "reason": "9e80f7a68f0f987ccc4bee280ebbce033e0f3dd06a998aede240663512b6e4a6"
       },
-      "verdict": "SIGNED"
+      "verdict": "SIGNED",
+      "closed": true,
+      "received": "2000000"
     }
   },
   "checks": [
@@ -223,6 +229,26 @@
       "label": "the court SIGNS the honest claim of 2",
       "ok": true,
       "detail": "The sources show 'No', for which the terms give the user 2, exactly what the settlement gives."
+    },
+    {
+      "label": "the channel is closed and the wallet got its 10 tUSD back, with no node signature",
+      "ok": true,
+      "detail": "received 10.0"
+    },
+    {
+      "label": "the second channel on the same terms closes too, paying 10",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "Yellow's hub rejects the close with the refused case as the node's signature",
+      "ok": true,
+      "detail": "IncorrectSignature"
+    },
+    {
+      "label": "the wallet got exactly 2 back; the node keeps the other 8 the terms give it",
+      "ok": true,
+      "detail": ""
     },
     {
       "label": "a channel that does not approve Countersign is refused",
@@ -298,6 +324,18 @@
     {
       "label": "F: the wallet files its CLOSE for 2 tUSD on Countersign",
       "hash": "0x4394c816d3653ce72d8f6d29fd67abf338fbe9aa26bc3e2411c4f5d7cf241c91"
+    },
+    {
+      "label": "E: the wallet closes the channel alone, Countersign standing in for the silent node",
+      "hash": "0xd3e0872b40103e190db4c1b87c9c6d8d0167b56ece9e9cf02bbb4714929ddbda"
+    },
+    {
+      "label": "G: the second channel closes alone with the same settlement",
+      "hash": "0x8bd5edc700ca68510e1d0fa37e971144cd6855dde660660de63bb5de997b9285"
+    },
+    {
+      "label": "F: the wallet closes with its honest 2 tUSD, Countersign standing in for the node",
+      "hash": "0x3d129dd918dba1db0c1fe13231730978668767e0938ad4b8bb5666277dd595b7"
     }
   ],
   "genlayer": [
@@ -324,14 +362,6 @@
     "\nthe faucet",
     "  PASS  a new wallet gets 10 tUSD from the node | 0xc8c0cad53168f940874a633043ebc9dbf34132c6895d8bf7d437f3d2effdcde1",
     "  PASS  a wallet that already holds 10 gets nothing more | this wallet already holds 10 tUSD or more",
-    "    E: the wallet asks the node to sign its CLOSE for 10: 400 This node signs channel openings and then goes silent. It will not sign your settlement: take it to Internet Court.",
-    "    E_10: round ACCEPTED",
-    "    G: the wallet asks the node to sign its CLOSE for 10: 400 This node signs channel openings and then goes silent. It will not sign your settlement: take it to Internet Court.",
-    "    G_10: round ACCEPTED",
-    "    F: the wallet asks the node to sign its CLOSE for 10: 400 This node signs channel openings and then goes silent. It will not sign your settlement: take it to Internet Court.",
-    "    F_10: round ACCEPTED",
-    "    F: the wallet asks the node to sign its CLOSE for 2: 400 This node signs channel openings and then goes silent. It will not sign your settlement: take it to Internet Court.",
-    "    F_2: round ACCEPTED",
     "\nchannel E: a true bet, claimed honestly",
     "  PASS  the node refuses to sign the settlement it owes",
     "  PASS  the court SIGNS the claim of 10: the source shows Yes | The sources show 'Yes', for which the terms give the user 10, exactly what the settlement gives.",
@@ -340,14 +370,17 @@
     "\nchannel F: a false bet, claimed greedily, then honestly",
     "  PASS  the court REFUSES a claim of 10: the source shows No | The sources show 'No', for which the terms give the user 2, but the settlement gives 10.",
     "  PASS  the court SIGNS the honest claim of 2 | The sources show 'No', for which the terms give the user 2, exactly what the settlement gives.",
-    "\nYellow's hub enforces validator 3 from 2026-11-26T19:02:31.000Z; the closes run then.",
-    "  a close before activation: ValidatorNotActive",
+    "\nYellow's hub, the validator active",
+    "  PASS  the channel is closed and the wallet got its 10 tUSD back, with no node signature | received 10.0",
+    "  PASS  the second channel on the same terms closes too, paying 10",
+    "  PASS  Yellow's hub rejects the close with the refused case as the node's signature | IncorrectSignature",
+    "  PASS  the wallet got exactly 2 back; the node keeps the other 8 the terms give it",
     "\nthe node service's rules (it countersigns openings only)",
     "  PASS  a channel that does not approve Countersign is refused",
     "  PASS  a first state with another deposit is refused",
     "  PASS  a bet the node does not offer is refused",
     "  PASS  a state the user did not sign is refused",
     "  PASS  a channel that already exists is refused | this channel already exists",
-    "\n12/12 checks passed"
+    "\n16/16 checks passed"
   ]
 }

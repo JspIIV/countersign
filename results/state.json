@@ -15,9 +15,6 @@
     "  PASS  a CLOSE that pays out more than the channel holds is refused",
     "  PASS  nobody but the court can rule",
     "\nthe court",
-    "    rule A2: ACCEPTED FINISHED_WITH_RETURN",
-    "    rule B1: ACCEPTED FINISHED_WITH_RETURN",
-    "    rule C1: ACCEPTED FINISHED_WITH_RETURN",
     "  PASS  A1 (the user asks for 20, a share no outcome names): REFUSED, wanted REFUSED, landed on Countersign as REFUSED | The settlement gives the user 20, a share the terms name for no answer.",
     "  PASS  A2 (the user asks for 15, the share for Yes): SIGNED, wanted SIGNED, landed on Countersign as SIGNED | The sources show 'Yes', for which the terms give the user 15, exactly what the settlement gives.",
     "  PASS  B1 (the node closes: 5 to the user, 5 to the node): SIGNED, wanted SIGNED, landed on Countersign as SIGNED | The sources show 'No', for which the terms give the user 5, exactly what the settlement gives.",
@@ -31,9 +28,16 @@
     "  PASS  a case that does not exist signs nothing",
     "  PASS  a malformed countersignature signs nothing",
     "  PASS  the court never signs a challenge",
-    "\nYellow's hub, before the validator is active (2026-11-26T19:02:31.000Z)",
-    "  PASS  the hub refuses a countersignature until the node's registration has aged a day | ValidatorNotActive",
-    "\nphase 1 done; rerun after the activation time for phase 2."
+    "\nYellow's hub, the validator active",
+    "  PASS  the hub rejects A1 with the refused case as the node signature | IncorrectSignature",
+    "  PASS  on channel D, which never approved Countersign, the hub rejects any countersignature | ValidatorNotApproved",
+    "  PASS  channel A's enforced state is now A2: the user holds 15, the node locked 5 more from its vault | user 15.0 tUSD, locked 15.0",
+    "  PASS  channel B is closed and the user was paid exactly the 5 the terms give for No | status 3, user received 5.0 tUSD",
+    "  PASS  the closed channel cannot be settled again | IncorrectSignature",
+    "\nbalances: user 200.0 -> 165.0 tUSD (40 locked in A, C, D; 5 back from B), node vault 76.0 -> 76.0 (5 locked into A, 5 back from B)",
+    "  PASS  the user paid 40 into four channels and got 5 back from B",
+    "  PASS  the node's vault funded A's 5 and received B's 5",
+    "\n28/28 checks passed"
   ],
   "checks": [
     {
@@ -142,9 +146,39 @@
       "detail": ""
     },
     {
-      "label": "the hub refuses a countersignature until the node's registration has aged a day",
+      "label": "the hub rejects A1 with the refused case as the node signature",
       "ok": true,
-      "detail": "ValidatorNotActive"
+      "detail": "IncorrectSignature"
+    },
+    {
+      "label": "on channel D, which never approved Countersign, the hub rejects any countersignature",
+      "ok": true,
+      "detail": "ValidatorNotApproved"
+    },
+    {
+      "label": "channel A's enforced state is now A2: the user holds 15, the node locked 5 more from its vault",
+      "ok": true,
+      "detail": "user 15.0 tUSD, locked 15.0"
+    },
+    {
+      "label": "channel B is closed and the user was paid exactly the 5 the terms give for No",
+      "ok": true,
+      "detail": "status 3, user received 5.0 tUSD"
+    },
+    {
+      "label": "the closed channel cannot be settled again",
+      "ok": true,
+      "detail": "IncorrectSignature"
+    },
+    {
+      "label": "the user paid 40 into four channels and got 5 back from B",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "the node's vault funded A's 5 and received B's 5",
+      "ok": true,
+      "detail": ""
     }
   ],
   "evm": [
@@ -183,6 +217,14 @@
     {
       "label": "C1: pchg files the user's settlement (the user asks for 15; the agreement says the node conceded)",
       "hash": "0x210346ee8b081b711709ecc3d1134e806c2e6b84b8b446de467d2bb66fed7d2a"
+    },
+    {
+      "label": "A2: padv checkpoints the settlement on the hub, Countersign standing in for the node",
+      "hash": "0xa72ba096cb21ee2357e11c4ad83c9335d42a3819d0baa2b36fa1bd2d35c7b8dd"
+    },
+    {
+      "label": "B1: ppub closes channel B on the hub, Countersign standing in for the user",
+      "hash": "0x34fa516273303e4bb5a34f7062c58f7eff2d233714f52bfb35c1e35f5d49debe"
     }
   ],
   "txs": [
@@ -365,5 +407,8 @@
       "judges": "The source says Mount Everest is 8,848.86 m tall, which is not below 8,000 metres."
     }
   },
-  "phase": 1
+  "phase": 2,
+  "enforcedA2": true,
+  "userBeforeB": "160000000",
+  "closedB1": true
 }

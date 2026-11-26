@@ -1,0 +1,294 @@
+{
+  "checks": [
+    {
+      "label": "the hub stored channel A with Countersign approved in its definition",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "terms that are not the ones the anchor commits to are refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "an anchor the node never signed is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a settlement that is not newer than the anchor is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a settlement both sides already signed needs no court",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a settlement neither side signed is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "the same settlement cannot be filed twice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a CLOSE that pays out more than the channel holds is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "nobody but the court can rule",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "A1 (the user asks for 20, a share no outcome names): REFUSED, wanted REFUSED, landed on Countersign as REFUSED",
+      "ok": true,
+      "detail": "The settlement gives the user 20, a share the terms name for no answer."
+    },
+    {
+      "label": "A2 (the user asks for 15, the share for Yes): SIGNED, wanted SIGNED, landed on Countersign as SIGNED",
+      "ok": true,
+      "detail": "The sources show 'Yes', for which the terms give the user 15, exactly what the settlement gives."
+    },
+    {
+      "label": "B1 (the node closes: 5 to the user, 5 to the node): SIGNED, wanted SIGNED, landed on Countersign as SIGNED",
+      "ok": true,
+      "detail": "The sources show 'No', for which the terms give the user 5, exactly what the settlement gives."
+    },
+    {
+      "label": "C1 (the user asks for 15; the agreement says the node conceded): REFUSED, wanted REFUSED, landed on Countersign as REFUSED",
+      "ok": true,
+      "detail": "The sources show 'No', for which the terms give the user 5, but the settlement gives 15."
+    },
+    {
+      "label": "case A2 signs A2 for the node",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "...not for the user who proposed it",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "...not for another state of the same channel",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "...not in another channel",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a refused case signs nothing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a case that does not exist signs nothing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "a malformed countersignature signs nothing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "the court never signs a challenge",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "the hub rejects A1 with the refused case as the node signature",
+      "ok": true,
+      "detail": "IncorrectSignature"
+    },
+    {
+      "label": "on channel D, which never approved Countersign, the hub rejects any countersignature",
+      "ok": true,
+      "detail": "ValidatorNotApproved"
+    },
+    {
+      "label": "channel A's enforced state is now A2: the user holds 15, the node locked 5 more from its vault",
+      "ok": true,
+      "detail": "user 15.0 tUSD, locked 15.0"
+    },
+    {
+      "label": "channel B is closed and the user was paid exactly the 5 the terms give for No",
+      "ok": true,
+      "detail": "status 3, user received 5.0 tUSD"
+    },
+    {
+      "label": "the closed channel cannot be settled again",
+      "ok": true,
+      "detail": "IncorrectSignature"
+    },
+    {
+      "label": "the user paid 40 into four channels and got 5 back from B",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "the node's vault funded A's 5 and received B's 5",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "verdicts": {
+    "A1": {
+      "case": 1,
+      "verdict": "REFUSED",
+      "on_countersign": "REFUSED",
+      "answer": "",
+      "why": "The settlement gives the user 20, a share the terms name for no answer.",
+      "judges": ""
+    },
+    "A2": {
+      "case": 2,
+      "verdict": "SIGNED",
+      "on_countersign": "SIGNED",
+      "answer": "Yes",
+      "why": "The sources show 'Yes', for which the terms give the user 15, exactly what the settlement gives.",
+      "judges": "The source says Mount Everest’s height is 8,848.86 m, which is above 8,800 metres."
+    },
+    "B1": {
+      "case": 3,
+      "verdict": "SIGNED",
+      "on_countersign": "SIGNED",
+      "answer": "No",
+      "why": "The sources show 'No', for which the terms give the user 5, exactly what the settlement gives.",
+      "judges": "The source says Mount Everest’s height is 8,848.86 m, which is not below 8,000 metres."
+    },
+    "C1": {
+      "case": 5,
+      "verdict": "REFUSED",
+      "on_countersign": "REFUSED",
+      "answer": "No",
+      "why": "The sources show 'No', for which the terms give the user 5, but the settlement gives 15.",
+      "judges": "The source says Mount Everest is 8,848.86 m tall, which is not below 8,000 metres."
+    }
+  },
+  "cases": {
+    "A1": 1,
+    "A2": 2,
+    "B1": 3,
+    "C1": 5
+  },
+  "channels": {
+    "A": "0x01dd0b9d01480c9c8f57274c995461ea0de6d2c71cea638e515887ad7a227d5e",
+    "B": "0x01ae3e30791751584347a85d2613f7426fc8b9296baef0515b9b2e2267d24588",
+    "C": "0x017d6358610f96c5e3776521396001034c6c2e1cbedcc34417e1c08c0ba2d1b0",
+    "D": "0x01bf78989d2d8f1cf4da7edb1ca090ffc47722a1b97773a651e646764d93449d"
+  },
+  "evm": [
+    {
+      "label": "padv approves the hub for tUSD",
+      "hash": "0x0e4e90e395c66eb422047fd54edce1befd456938e63360f979915154919bdfa5"
+    },
+    {
+      "label": "channel A: padv opens it with 10 tUSD; the first state, signed by both, commits to the terms",
+      "hash": "0x45656374cf3aef5fd07c5f4b9331dc7d7f1d88281a20e7cd2ab6e7d841622f2c"
+    },
+    {
+      "label": "channel B: padv opens it with 10 tUSD; the first state, signed by both, commits to the terms",
+      "hash": "0xd15b1eead16c0ffe9358508ddb72b665b8fc2b3b5a4ed50230d6b02e7adf16d4"
+    },
+    {
+      "label": "channel C: padv opens it with 10 tUSD; the first state, signed by both, commits to the terms",
+      "hash": "0xc4e967e410e372786d79616c653e09d63ffce17ac15c2fa07cbc7e20f6b8a365"
+    },
+    {
+      "label": "channel D: padv opens it with 10 tUSD; the first state, signed by both, commits to the terms",
+      "hash": "0x2b57e329f79f630556889a63ab8f57c373a406b79ce419aa0d5247d34586207c"
+    },
+    {
+      "label": "A1: pchg files the user's settlement (the user asks for 20, a share no outcome names)",
+      "hash": "0x4f00fbdbef93d3e8e5d8a0051368eed7a1128c2f77dac16283f0d1b46dcbbc52"
+    },
+    {
+      "label": "A2: pchg files the user's settlement (the user asks for 15, the share for Yes)",
+      "hash": "0x4ea4632ce35639df07fbd66da352d8eccdf1f2f184af2d48a700c4af9a67cae1"
+    },
+    {
+      "label": "B1: pchg files the node's settlement (the node closes: 5 to the user, 5 to the node)",
+      "hash": "0x5e816eadf0ccd205453fdf1792cbbb47c8f438480d2a85438d613cb0710f17a9"
+    },
+    {
+      "label": "C1: pchg files the user's settlement (the user asks for 15; the agreement says the node conceded)",
+      "hash": "0x210346ee8b081b711709ecc3d1134e806c2e6b84b8b446de467d2bb66fed7d2a"
+    },
+    {
+      "label": "A2: padv checkpoints the settlement on the hub, Countersign standing in for the node",
+      "hash": "0xa72ba096cb21ee2357e11c4ad83c9335d42a3819d0baa2b36fa1bd2d35c7b8dd"
+    },
+    {
+      "label": "B1: ppub closes channel B on the hub, Countersign standing in for the user",
+      "hash": "0x34fa516273303e4bb5a34f7062c58f7eff2d233714f52bfb35c1e35f5d49debe"
+    }
+  ],
+  "genlayer": [
+    {
+      "label": "rule A1 (case 1)",
+      "hash": "0x74304067cf2158a0a03aceca5e125059fac5f8aab3e0a57ec27f4c742d26e6f0"
+    },
+    {
+      "label": "rule A2 (case 2)",
+      "hash": "0x4fa3499ab61e22bf4ed49faae6ef543591ea05e56bf813a54ad844da8690e0df"
+    },
+    {
+      "label": "rule B1 (case 3)",
+      "hash": "0x32fa3ef2e4164a56cc5a6e2d856d33a4785a30befde6a37e776b3e9da97a758d"
+    },
+    {
+      "label": "rule C1 (case 5)",
+      "hash": "0x44dc9fd9c2b6a2c64b4d912dc23e00b0ab5471871dce7c7809d4e30d66e58424"
+    }
+  ],
+  "transcript": [
+    "Countersign, proven: Internet Court as a Yellow Nitrolite signature validator",
+    "  ChannelHub 0x6999925Cc2F8a17A0D28c43840eE03044412EE87 (Yellow's code, byte-identical to Yellow's Base Sepolia hub) | Countersign 0xA372004bA02A12B25250cbaCDb9751eAfeC4167C (validator id 3) | court 0xdB347ea00FBF35b21b5a8dE271CaA3b13FA00B2B",
+    "  user padv 0x80519c53f10d731e4ff83a7d9acd69cf98da6258 | node ppub 0x0b57877ec84d96b672cd47d8ea4424283fdb9f6c | stranger pchg 0xbdb591cddd787956a4fb17a8f4c325366525efd2",
+    "  evidence: https://en.wikipedia.org/api/rest_v1/page/summary/Mount_Everest",
+    "  PASS  the hub stored channel A with Countersign approved in its definition",
+    "\nfiling guards (eth_call against the deployed Countersign)",
+    "  PASS  terms that are not the ones the anchor commits to are refused",
+    "  PASS  an anchor the node never signed is refused",
+    "  PASS  a settlement that is not newer than the anchor is refused",
+    "  PASS  a settlement both sides already signed needs no court",
+    "  PASS  a settlement neither side signed is refused",
+    "  PASS  the same settlement cannot be filed twice",
+    "  PASS  a CLOSE that pays out more than the channel holds is refused",
+    "  PASS  nobody but the court can rule",
+    "\nthe court",
+    "  PASS  A1 (the user asks for 20, a share no outcome names): REFUSED, wanted REFUSED, landed on Countersign as REFUSED | The settlement gives the user 20, a share the terms name for no answer.",
+    "  PASS  A2 (the user asks for 15, the share for Yes): SIGNED, wanted SIGNED, landed on Countersign as SIGNED | The sources show 'Yes', for which the terms give the user 15, exactly what the settlement gives.",
+    "  PASS  B1 (the node closes: 5 to the user, 5 to the node): SIGNED, wanted SIGNED, landed on Countersign as SIGNED | The sources show 'No', for which the terms give the user 5, exactly what the settlement gives.",
+    "  PASS  C1 (the user asks for 15; the agreement says the node conceded): REFUSED, wanted REFUSED, landed on Countersign as REFUSED | The sources show 'No', for which the terms give the user 5, but the settlement gives 15.",
+    "\nwhat a countersignature is valid for (eth_call on validateSignature)",
+    "  PASS  case A2 signs A2 for the node",
+    "  PASS  ...not for the user who proposed it",
+    "  PASS  ...not for another state of the same channel",
+    "  PASS  ...not in another channel",
+    "  PASS  a refused case signs nothing",
+    "  PASS  a case that does not exist signs nothing",
+    "  PASS  a malformed countersignature signs nothing",
+    "  PASS  the court never signs a challenge",
+    "\nYellow's hub, the validator active",
+    "  PASS  the hub rejects A1 with the refused case as the node signature | IncorrectSignature",
+    "  PASS  on channel D, which never approved Countersign, the hub rejects any countersignature | ValidatorNotApproved",
+    "  PASS  channel A's enforced state is now A2: the user holds 15, the node locked 5 more from its vault | user 15.0 tUSD, locked 15.0",
+    "  PASS  channel B is closed and the user was paid exactly the 5 the terms give for No | status 3, user received 5.0 tUSD",
+    "  PASS  the closed channel cannot be settled again | IncorrectSignature",
+    "\nbalances: user 200.0 -> 165.0 tUSD (40 locked in A, C, D; 5 back from B), node vault 76.0 -> 76.0 (5 locked into A, 5 back from B)",
+    "  PASS  the user paid 40 into four channels and got 5 back from B",
+    "  PASS  the node's vault funded A's 5 and received B's 5",
+    "\n28/28 checks passed"
+  ]
+}

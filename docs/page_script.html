@@ -45,11 +45,11 @@ window.fetch = async (input, init) => {
       init = { ...init, body: JSON.stringify(body) };
     }
   }
-  // The node rate-limits reads by IP; a refused read was never run, so it is asked again. Sends are never repeated.
-  const read = init && typeof init.body === "string" && init.body.includes('"gen_call"');
+  // The node rate-limits reads by IP, and now and then fails one inside; such a read was never answered, so it is asked again. Sends are never repeated.
+  const read = init && typeof init.body === "string" && !init.body.includes('"eth_send');
   for (let i = 0; ; i++) {
     const res = await realFetch(url, init);
-    if (!read || i >= 8 || !/rate limit/i.test(await res.clone().text())) return res;
+    if (!read || i >= 8 || !/rate limit|exceeds defined limit|"code":-32603/i.test(await res.clone().text())) return res;
     await new Promise((r) => setTimeout(r, 1200 * (i + 1) + Math.random() * 800));
   }
 };

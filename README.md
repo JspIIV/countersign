@@ -19,10 +19,14 @@ the id of a case Internet Court decided, and only for the exact state the court 
   to the court, close the channel without the node; or claim falsely and watch the court and the hub refuse.
 - **The court (GenLayer Bradbury):** [`0xdB347ea00FBF35b21b5a8dE271CaA3b13FA00B2B`](https://scan.bradbury.genlayer.com/address/0xdB347ea00FBF35b21b5a8dE271CaA3b13FA00B2B)
 - **Countersign (GenLayer Chain):** `0xA372004bA02A12B25250cbaCDb9751eAfeC4167C`, validator id 3 on the hub
+- **Moved to Bradbury Phase 3 on 2026-11-26.** GenLayer moved its testnet to Phase 3 on 2026-11-25, and a court on
+  Phase 2 can no longer give new rulings. The court and Countersign were deployed again with the same code (only the
+  court's runner line changed), registered on the same hub as validator id 3, and proven again after its one-day
+  activation. The Phase 2 addresses are kept in `deployment.json` (`previous`), their proof in `results/v2/`.
 - **Skill:** [`SKILL.md`](SKILL.md) · **Security:** [`SECURITY.md`](SECURITY.md)
 
 ```text
-user + node ──createChannel(def: approves validator 2, first state: deposit + keccak256(terms), signed by both)──▶ ChannelHub
+user + node ──createChannel(def: approves validator 3, first state: deposit + keccak256(terms), signed by both)──▶ ChannelHub
 session ends; the user signs its settlement; the node goes silent
 anybody ──fileCase(channel, first state, signed settlement, terms)──▶ Countersign: checks both against the hub, files a case
 anybody ──rule(case)──▶ the court (GenLayer): validators read the cited source, agree on the answer; shares compared in code
@@ -95,47 +99,47 @@ Countersign. Terms: Mount Everest's height from Wikipedia, Yes 15 / No 5.
 
 | Case | Settlement | Filed | Court | Verdict |
 |---|---|---|---|---|
-| A1 | the user asks for 20, a share no outcome names | [`0x52596791`](https://scan.testnet-chain.genlayer.com/tx/0x525967917c92fbc01934db65c1687d9f4bc78270deab64701ed0adca20cf978f) | [`0x6714c029`](https://scan.bradbury.genlayer.com/tx/0x6714c02964bf79f7e89095b77119c2a41972c9e7fa1283d2cc38a5db8160e16b) | **REFUSED**, in code |
-| A2 | the user asks for 15, the share for Yes ("above 8,800 m") | [`0xc5909a0f`](https://scan.testnet-chain.genlayer.com/tx/0xc5909a0f48444b338f24954ff2b566902f149bd71425ff3d5d70ac6e664472bb) | [`0xe1b73ada`](https://scan.bradbury.genlayer.com/tx/0xe1b73ada4c14ad9386611564b5ca992973442a59b4d9f07a5309923489eb280d) | **SIGNED** |
-| B1 | the node closes, 5 to the user, the share for No ("below 8,000 m") | [`0xd5d64eca`](https://scan.testnet-chain.genlayer.com/tx/0xd5d64ecab4935d20ea60bfcdd764199eadb220e032902092587c78a30d8a4a68) | [`0x41d835ec`](https://scan.bradbury.genlayer.com/tx/0x41d835ec0a5247b427d4c8b0be21a49e633cf6dcfe69969f05a1bb6176659cf2) | **SIGNED** |
-| C1 | the user asks for 15; the terms tell the judges "the node already conceded" | [`0x1adebb00`](https://scan.testnet-chain.genlayer.com/tx/0x1adebb008ab16da8869a2292d2c38c5792352efe6966ef4b4c81466d2f7c9f1d) | [`0xdf8c6897`](https://scan.bradbury.genlayer.com/tx/0xdf8c68977ec7d19d6c068cb97be515ff3b7d92790a6d06fe36ac9bb3ad23944c) | **REFUSED**: the source shows No |
+| A1 | the user asks for 20, a share no outcome names | [`0x4f00fbdb`](https://scan.testnet-chain.genlayer.com/tx/0x4f00fbdbef93d3e8e5d8a0051368eed7a1128c2f77dac16283f0d1b46dcbbc52) | [`0x74304067`](https://scan.bradbury.genlayer.com/tx/0x74304067cf2158a0a03aceca5e125059fac5f8aab3e0a57ec27f4c742d26e6f0) | **REFUSED**, in code |
+| A2 | the user asks for 15, the share for Yes ("above 8,800 m") | [`0x4ea4632c`](https://scan.testnet-chain.genlayer.com/tx/0x4ea4632ce35639df07fbd66da352d8eccdf1f2f184af2d48a700c4af9a67cae1) | [`0x4fa3499a`](https://scan.bradbury.genlayer.com/tx/0x4fa3499ab61e22bf4ed49faae6ef543591ea05e56bf813a54ad844da8690e0df) | **SIGNED** |
+| B1 | the node closes, 5 to the user, the share for No ("below 8,000 m") | [`0x5e816ead`](https://scan.testnet-chain.genlayer.com/tx/0x5e816eadf0ccd205453fdf1792cbbb47c8f438480d2a85438d613cb0710f17a9) | [`0x32fa3ef2`](https://scan.bradbury.genlayer.com/tx/0x32fa3ef2e4164a56cc5a6e2d856d33a4785a30befde6a37e776b3e9da97a758d) | **SIGNED** |
+| C1 | the user asks for 15; the terms tell the judges "the node already conceded" | [`0x210346ee`](https://scan.testnet-chain.genlayer.com/tx/0x210346ee8b081b711709ecc3d1134e806c2e6b84b8b446de467d2bb66fed7d2a) | [`0x44dc9fd9`](https://scan.bradbury.genlayer.com/tx/0x44dc9fd9c2b6a2c64b4d912dc23e00b0ab5471871dce7c7809d4e30d66e58424) | **REFUSED**: the source shows No |
 
 Around them: eight filing guards (terms that are not the committed ones, an anchor the node never signed, a stale
 settlement, one both signed, one neither signed, a duplicate, a CLOSE that pays out more than the channel holds, a
 stranger ruling), eight `validateSignature` checks (only the ruled state, its channel, the silent side; a refused,
 unknown or malformed case signs nothing; never a challenge). Before the validator's one-day activation the hub also
-refused a countersignature (`ValidatorNotActive`), recorded on 2026-11-23.
+refused a countersignature (`ValidatorNotActive`), recorded on 2026-11-26.
 
 **Phase 3: the reviewer's path (16/16).** A new wallet gets 10 tUSD from the node's faucet, opens channels
 whose first state the node service signs, and asks the node to sign its CLOSE; the node refuses every time.
 
 | Channel | Bet | Claim | Filed | Court | Verdict |
 |---|---|---|---|---|---|
-| E | Everest above 8,800 m | 10 (Yes) | [`0x60bb2746`](https://scan.testnet-chain.genlayer.com/tx/0x60bb274693f3b7947c28941a95e0d6cb6f8bc48a7f8d0398f158a4f60213986d) | [`0x47488f8a`](https://scan.bradbury.genlayer.com/tx/0x47488f8a9637ee026743f636bc62dad23eaf349897326442076bc78be302fbd1) | **SIGNED** |
-| G | the same bet, a second channel | the same 10 | [`0xf24d9015`](https://scan.testnet-chain.genlayer.com/tx/0xf24d90152d92cea16ada07ce70be68af33780e9e9c9290e9d3ee68ff4fbec27f) | [`0x68980bf1`](https://scan.bradbury.genlayer.com/tx/0x68980bf1f5980afa78417eebc298416e3018c59f88fda513e1b3a3eb2298b241) | **SIGNED**, its own case: the v1 collision is gone |
-| F | Everest below 8,000 m | 10 (Yes, false) | [`0xa070c44f`](https://scan.testnet-chain.genlayer.com/tx/0xa070c44f08416b1a85dc6af6a3a8cbc3f05e31987af1c0bad0f0f77974417790) | [`0xbf677d47`](https://scan.bradbury.genlayer.com/tx/0xbf677d4799a3856ade8687b1ead730e22cd783c74ee576c3119e700eac7077d5) | **REFUSED** |
-| F | the same channel | 2 (No, honest) | [`0x356f6c70`](https://scan.testnet-chain.genlayer.com/tx/0x356f6c70ff472a457a0f43c74eea7de793c23f1fdeffd9a2b54a5a289de80ff7) | [`0xf80ea2fa`](https://scan.bradbury.genlayer.com/tx/0xf80ea2fab6a6b714089e8b21bda4cad914bfe184cc98c8c533d7857c308568c1) | **SIGNED** |
+| E | Everest above 8,800 m | 10 (Yes) | [`0xf670bbe1`](https://scan.testnet-chain.genlayer.com/tx/0xf670bbe18ba39109b03ed275885f72ed6f9a0ffbd4c968a407655df396b3d5ec) | [`0x599938b2`](https://scan.bradbury.genlayer.com/tx/0x599938b27047d49eeff91cbc660890615135e43a3202ba040af6bbf298a5e488) | **SIGNED** |
+| G | the same bet, a second channel | the same 10 | [`0xcac916f7`](https://scan.testnet-chain.genlayer.com/tx/0xcac916f721fce5bb9e9c8e6294e359aff338309722d7371f5da59642d52c9775) | [`0xf455b21f`](https://scan.bradbury.genlayer.com/tx/0xf455b21fcf0205d7845e4343ecc032303151107e87f94f39b3676d43900ad048) | **SIGNED**, its own case: the v1 collision is gone |
+| F | Everest below 8,000 m | 10 (Yes, false) | [`0x38d4a8f2`](https://scan.testnet-chain.genlayer.com/tx/0x38d4a8f28b1d20eaf3d51dd48ace8db17c42c3db544719417f6130a9a8aa6e50) | [`0x66b82843`](https://scan.bradbury.genlayer.com/tx/0x66b828439ba109db73bc25d9e677578762b1ace00a004cce93344346bd0f1157) | **REFUSED** |
+| F | the same channel | 2 (No, honest) | [`0x4394c816`](https://scan.testnet-chain.genlayer.com/tx/0x4394c816d3653ce72d8f6d29fd67abf338fbe9aa26bc3e2411c4f5d7cf241c91) | [`0x5349e389`](https://scan.bradbury.genlayer.com/tx/0x5349e389157f40739ae13f14d605710babfd122b62afffd84173c0e5cb5485f4) | **SIGNED** |
 
 The node service's own rules are checked too: no Countersign approval, another deposit, a bet it does not offer, a
 state the user did not sign and a channel that already exists are all refused.
 
-**Phase 2 and the closes: enforcement on Yellow's hub.** Countersign v2 became active on the hub on 2026-11-24 at 14:28
+**Phase 2 and the closes: enforcement on Yellow's hub.** Countersign became active on the hub on 2026-11-26 at 19:02
 UTC. Phase 2 (7 checks, 28/28 with phase 1) and the closes of phase 3 ran after it.
 
 | What | Transaction | Result |
 |---|---|---|
-| A2 checkpointed by the user, Countersign standing in for the node | [`0x5a76ea52`](https://scan.testnet-chain.genlayer.com/tx/0x5a76ea521d9937713ec31327f3980a740b7a513d7b430ecf2efacfc518d97143) | enforced: the user holds 15, the node's vault locked 5 more |
-| B closed by the node, Countersign standing in for the user | [`0xc4f98fb8`](https://scan.testnet-chain.genlayer.com/tx/0xc4f98fb81d718288a509e0504de495cfba543e704db24039cd80f749590e686a) | closed, the user paid exactly 5 |
-| E closed by the new wallet alone | [`0x37b0fdc9`](https://scan.testnet-chain.genlayer.com/tx/0x37b0fdc9bd99d6a1ea79738d98b002f7a11474d1f75f5ac03b1adaebe477f6f2) | 10 tUSD back, no node signature |
-| G, the same settlement in a second channel | [`0xe2e28893`](https://scan.testnet-chain.genlayer.com/tx/0xe2e28893414c2bc40b60ab57c0e4e9458e69ce00686588aacdfe48c9f205cd43) | 10 tUSD back |
-| F closed with the honest claim | [`0xf045dd14`](https://scan.testnet-chain.genlayer.com/tx/0xf045dd14ed68ba3a208cba1227467912e41d969382f7e98b418bc5c1bcf64c0c) | 2 tUSD back |
+| A2 checkpointed by the user, Countersign standing in for the node | [`0xa72ba096`](https://scan.testnet-chain.genlayer.com/tx/0xa72ba096cb21ee2357e11c4ad83c9335d42a3819d0baa2b36fa1bd2d35c7b8dd) | enforced: the user holds 15, the node's vault locked 5 more |
+| B closed by the node, Countersign standing in for the user | [`0x34fa5162`](https://scan.testnet-chain.genlayer.com/tx/0x34fa516273303e4bb5a34f7062c58f7eff2d233714f52bfb35c1e35f5d49debe) | closed, the user paid exactly 5 |
+| E closed by the new wallet alone | [`0xd3e0872b`](https://scan.testnet-chain.genlayer.com/tx/0xd3e0872b40103e190db4c1b87c9c6d8d0167b56ece9e9cf02bbb4714929ddbda) | 10 tUSD back, no node signature |
+| G, the same settlement in a second channel | [`0x8bd5edc7`](https://scan.testnet-chain.genlayer.com/tx/0x8bd5edc700ca68510e1d0fa37e971144cd6855dde660660de63bb5de997b9285) | 10 tUSD back |
+| F closed with the honest claim | [`0x3d129dd9`](https://scan.testnet-chain.genlayer.com/tx/0x3d129dd918dba1db0c1fe13231730978668767e0938ad4b8bb5666277dd595b7) | 2 tUSD back |
 | A1 and F's false claim, offered to the hub with their refused cases | `eth_call` | `IncorrectSignature` |
 | a countersignature on channel D, which never approved Countersign | `eth_call` | `ValidatorNotApproved` |
 | B closed a second time | `eth_call` | `IncorrectSignature` |
 
-Balances are exact on both sides. All 44 checks pass: 28 in `results/proof.json`, 16 in `results/flow_proof.json`. One
-court round on E ended UNDETERMINED and changed nothing; asking again ruled it. v1 ran the same path on the same hub,
-in `results/v1/`.
+Balances are exact on both sides. All 44 checks pass: 28 in `results/proof.json`, 16 in `results/flow_proof.json`. The
+same proof on Bradbury Phase 2 (validator id 2) is in `results/v2/`, and v1 ran the same path on the same hub, in
+`results/v1/`.
 
 ## Tests
 

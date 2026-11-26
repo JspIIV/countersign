@@ -21,7 +21,9 @@ async function patient(url, init) {
     try {
       const res = await realFetch(url, init);
       const html = (res.headers.get('content-type') || '').includes('text/html');
-      if (sends || attempt >= 8 || (res.status < 500 && !html)) return res;
+      // A read the node refused as over its limit, or failed inside, was never answered: ask again.
+      const refused = !sends && res.status < 500 && !html && /rate limit|exceeds defined limit|"code":-32603/i.test(await res.clone().text());
+      if (sends || attempt >= 8 || (res.status < 500 && !html && !refused)) return res;
     } catch (e) {
       if (sends || attempt >= 8) throw e;
     }
